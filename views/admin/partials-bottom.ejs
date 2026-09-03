@@ -1,0 +1,14 @@
+</main></div>
+<script>
+function addTier(){const w=document.getElementById('tiers');const d=document.createElement('div');d.className='tierrow';
+d.innerHTML='<input class="input" type="number" name="tier_qty[]" placeholder="Min qty" min="1"><input class="input" type="number" step="0.01" name="tier_price[]" placeholder="Price"><button type="button" class="btn btn-sm btn-ghost" onclick="this.parentNode.remove()">×</button>';w.appendChild(d);}
+function confirmDel(e,msg){if(!confirm(msg||'Delete this permanently? This cannot be undone.'))e.preventDefault();}
+document.querySelectorAll('[data-autoslug]').forEach(function(src){
+  var t=document.querySelector(src.dataset.autoslug);
+  if(!t) return;
+  src.addEventListener('input',function(){ if(t.dataset.touched) return;
+    t.value=src.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,90); });
+  t.addEventListener('input',function(){t.dataset.touched='1'});
+});
+</script>
+</body></html>

@@ -1,0 +1,60 @@
+<footer class="footer">
+  <div class="wrap">
+    <div class="grid">
+      <div class="footer-brand">
+        <img src="/static/img/brand/logo.jpg" alt="<%= S.site_name %>" style="max-height: 56px; width: auto; object-fit: contain;">
+        <p style="font-size:14px;max-width:34ch">Wholesale garment accessories from Delhi since 1993. Tagging systems, tags and labels, pins, threading thread and packing consumables.</p>
+        <div class="footer-contact">
+          <div><b>Call / WhatsApp:</b> <a href="tel:<%= S.phone.replace(/\s/g,'') %>" style="display:inline"><%= S.phone %></a></div>
+          <div><b>Email:</b> <a href="mailto:<%= S.email %>" style="display:inline"><%= S.email %></a></div>
+          <div><b>Address:</b> <%= S.address %></div>
+          <div><b>Hours:</b> <%= S.hours %></div>
+        </div>
+      </div>
+      <div>
+        <h5>Shop</h5>
+        <% for(const g of tree.slice(0,6)){ %><a href="/c/<%= g.slug %>"><%= g.name %></a><% } %>
+        <a href="/products">All products</a>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <a href="/pages/about-us">About us</a>
+        <a href="/wholesale">Wholesale programme</a>
+        <a href="/contact">Contact us</a>
+
+        <a href="/pages/terms-conditions">Terms &amp; conditions</a>
+        <a href="/pages/privacy-policy">Privacy policy</a>
+      </div>
+      <div>
+        <h5>Trade updates</h5>
+        <p style="font-size:14px">New stock arrivals and slab-price revisions, roughly once a month. No spam.</p>
+        <form class="newsletter" method="post" action="/subscribe">
+          <input type="email" name="email" placeholder="Your work email" required>
+          <button class="btn btn-gold" type="submit">Join</button>
+        </form>
+        <h5 style="margin-top:26px">Wholesale enquiries</h5>
+        <p style="font-size:14px">Message us on WhatsApp — we reply within one business day.</p>
+        <a class="btn btn-sm" href="https://wa.me/<%= S.whatsapp %>?text=Hi%20<%= encodeURIComponent(S.site_name) %>,%20we%20would%20like%20to%20enquire%20about%20the%20products%20that%20you%20deal%20in." style="background:#25D366;color:#fff;border-color:#25D366;font-size:11px;padding:6px 14px;display:inline-flex;">WhatsApp us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <%= new Date().getFullYear() %> <%= S.site_name %>. All rights reserved.</span>
+      <span>GSTIN <%= S.gstin %> · Made in Delhi</span>
+    </div>
+  </div>
+</footer>
+
+<a class="wa" href="https://wa.me/<%= S.whatsapp %>?text=Hi%20<%= encodeURIComponent(S.site_name) %>,%20we%20would%20like%20to%20enquire%20about%20the%20products%20that%20you%20deal%20in." target="_blank" rel="noopener" aria-label="WhatsApp us">
+  <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.8 14.2c-.2.7-1.2 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a12 12 0 01-6.6-5.8c-.5-.9-.8-1.9-.2-2.9.3-.4.6-.7 1-.7h.7c.2 0 .5 0 .7.5l.9 2.1c.1.2 0 .4-.1.6l-.4.5c-.1.2-.3.3-.1.6a8 8 0 003.6 3.1c.3.1.5.1.7-.1l.8-1c.2-.2.4-.2.6-.1l2 1c.3.1.4.2.4.4.1.2.1.6 0 .9z"/></svg>
+</a>
+
+
+<nav class="mobilenav">
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z" stroke-linejoin="round"/></svg>Home</a>
+  <a href="/products"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>All Products</a>
+
+  <a href="<%= user ? '/account' : '/login' %>"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0115 0" stroke-linecap="round"/></svg>Sign In</a>
+</nav>
+
+<script src="/static/js/main.js" defer></script>
+</body></html>

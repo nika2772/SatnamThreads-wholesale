@@ -1,0 +1,12 @@
+<%- include('partials/top') %>
+<div class="wrap" style="padding-bottom:60px">
+  <div class="breadcrumb"><a href="/">Home</a> › <span>Wishlist</span></div>
+  <h1>Saved products</h1>
+  <% if(!products.length){ %>
+    <div class="card empty"><h3>Nothing saved yet</h3><p>Tap the heart on any product to keep it here for later.</p><a class="btn" href="/products">Browse the catalogue</a></div>
+  <% } else { %>
+    <p class="lead"><%= products.length %> saved item<%= products.length===1?'':'s' %>.</p>
+    <div class="grid g4"><% for(const p of products){ %><%- include('partials/pcard',{p}) %><% } %></div>
+  <% } %>
+</div>
+<%- include('partials/bottom') %>

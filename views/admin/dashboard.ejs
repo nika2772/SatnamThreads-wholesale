@@ -1,0 +1,36 @@
+<%- include('admin/partials-top',{title:'Dashboard',nav:'dash'}) %>
+<div class="topbar"><div><h1>Dashboard</h1><p class="muted" style="margin:0">Store overview · <%= today %></p></div>
+  <div style="display:flex;gap:8px"><a class="btn btn-ghost" href="/" target="_blank">View storefront</a>
+  <a class="btn" href="/admin/products/new">+ Add product</a></div></div>
+
+<div class="grid g2">
+  <div class="card stat"><span>Open enquiries</span><b><%= stats.newEnq %></b><i><%= stats.enquiries %> total received</i></div>
+  <div class="card stat"><span>Customers</span><b><%= stats.customers %></b><i><%= stats.pendingUsers %> awaiting approval</i></div>
+</div>
+
+<div class="grid g2" style="margin-top:18px">
+  <div class="card">
+    <div class="card-pad" style="padding-bottom:0;display:flex;justify-content:space-between;align-items:center">
+      <h2>Latest enquiries</h2><a class="btn btn-sm btn-ghost" href="/admin/enquiries">View all</a></div>
+    <% if(!recentEnq.length){ %><div class="empty">No enquiries yet.</div><% } else { %>
+    <div class="tablewrap" style="border:0;border-radius:0"><table class="table">
+      <thead><tr><th>Enquiry</th><th>From</th><th class="num">Items</th><th>Status</th></tr></thead>
+      <tbody><% for(const e of recentEnq){ %><tr>
+        <td><a href="/admin/enquiries/<%= e.id %>"><b><%= e.enquiry_no %></b></a><br><span class="muted"><%= timeAgo(e.created_at) %></span></td>
+        <td><%= e.name %><br><span class="muted"><%= e.company||e.city %></span></td>
+        <td class="num"><%= e.n %></td>
+        <td><span class="badge <%= e.status==='new'?'badge-warn':(e.status==='won'?'badge-ok':'badge') %>"><%= e.status %></span></td>
+      </tr><% } %></tbody></table></div><% } %>
+  </div>
+
+  <div class="card card-pad">
+    <h2>Low stock</h2>
+    <% if(!lowStock.length){ %><p class="muted">Nothing below the 50-unit threshold. </p><% } else { %>
+    <table class="table"><tbody><% for(const p of lowStock){ %>
+      <tr><td><img class="thumb" src="<%= firstImage(p) %>" alt=""></td>
+        <td><a href="/admin/products/<%= p.id %>"><%= p.name %></a><br><span class="muted"><%= p.sku %></span></td>
+        <td class="num"><span class="badge <%= p.stock<=0?'badge-bad':'badge-warn' %>"><%= p.stock %> left</span></td></tr>
+    <% } %></tbody></table><% } %>
+  </div>
+</div>
+<%- include('admin/partials-bottom') %>

@@ -1,0 +1,208 @@
+<%- include('partials/top') %>
+<div class="wrap">
+  <div class="breadcrumb"><a href="/">Home</a> ›
+    <% if(cat && cat.parent){ %><a href="/c/<%= cat.parent.slug %>"><%= cat.parent.name %></a> › <% } %>
+    <% if(cat){ %><a href="/c/<%= cat.slug %>"><%= cat.name %></a> › <% } %><span><%= p.name %></span></div>
+
+  <div class="pdp">
+    <div>
+      <div class="gallery-main" style="position: relative;">
+        <img id="gmain" src="<%= images[0] %>" alt="<%= p.name %>" width="600" height="600">
+        <% if(images.length > 1){ %>
+          <button type="button" class="gal-nav prev" onclick="navGal(-1)" aria-label="Previous image">❮</button>
+          <button type="button" class="gal-nav next" onclick="navGal(1)" aria-label="Next image">❯</button>
+        <% } %>
+      </div>
+      <% if(images.length>1){ %>
+      <div class="gallery-thumbs">
+        <% images.forEach((im,i)=>{ %><img src="<%= im %>" class="<%= i===0?'on':'' %>" onclick="document.getElementById('gmain').src=this.src;[...this.parentNode.children].forEach(e=>e.classList.remove('on'));this.classList.add('on')" alt="" width="70" height="70"><% }) %>
+      </div>
+      <script>
+        function navGal(dir) {
+          const thumbs = Array.from(document.querySelectorAll('.gallery-thumbs img'));
+          if (!thumbs.length) return;
+          let idx = thumbs.findIndex(t => t.classList.contains('on'));
+          if (idx === -1) idx = 0;
+          idx += dir;
+          if (idx < 0) idx = thumbs.length - 1;
+          if (idx >= thumbs.length) idx = 0;
+          thumbs[idx].click();
+        }
+      </script>
+      <% } %>
+    </div>
+
+    <div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <% if(p.is_new){ %><span class="badge badge-new">New</span><% } %>
+        <span id="stock-badge" class="badge <%= p.stock>0?'':'badge-warn' %>"><%= p.stock>0 ? 'In stock — '+p.stock+' '+p.unit+'s' : 'Made to order' %></span>
+      </div>
+      <h1><%= p.name %></h1>
+      <div class="stars" style="margin-bottom:8px"><%- '★'.repeat(Math.round(p.rating))+'☆'.repeat(5-Math.round(p.rating)) %><span><%= p.rating %> · <%= p.review_count %> ratings</span></div>
+      <p class="lead"><%= p.short_desc %></p>
+
+
+      <form method="post" action="/enquiry/add" style="display:flex; flex-direction:column; gap:12px; margin-bottom:6px;">
+        <% if (variants && variants.length > 0) { %>
+          <div>
+            <% 
+              let dims = [];
+              let hasMultiDim = false;
+              const parentProd = variants.find(v => !v.parent_id);
+              if (parentProd && parentProd.opts) {
+                const pOpts = typeof parentProd.opts === 'string' ? JSON.parse(parentProd.opts) : parentProd.opts;
+                if (pOpts.dimensions && pOpts.dimensions.length > 0) {
+                  dims = pOpts.dimensions;
+                  hasMultiDim = true;
+                }
+              }
+            %>
+            
+            <% if (hasMultiDim) { %>
+              <div class="variant-dropdowns" style="display:flex; flex-direction:column; gap:12px;">
+                <% dims.forEach((dim, idx) => { 
+                     const vals = new Set();
+                     variants.forEach(v => {
+                       if (v.opts) {
+                         const vOpts = typeof v.opts === 'string' ? JSON.parse(v.opts) : v.opts;
+                         if (vOpts.values && vOpts.values[dim]) {
+                           let matchPrev = true;
+                           for (let i = 0; i < idx; i++) {
+                             const prevDim = dims[i];
+                             const currOpts = p.opts ? (typeof p.opts === 'string' ? JSON.parse(p.opts) : p.opts) : {};
+                             const currentPrevVal = currOpts.values ? currOpts.values[prevDim] : '';
+                             if (vOpts.values[prevDim] !== currentPrevVal) {
+                               matchPrev = false;
+                               break;
+                             }
+                           }
+                           if (matchPrev) {
+                             vals.add(vOpts.values[dim]);
+                           }
+                         }
+                       }
+                     });
+                     
+                     let currentVal = '';
+                     if (p.opts) {
+                       const currOpts = typeof p.opts === 'string' ? JSON.parse(p.opts) : p.opts;
+                       if (currOpts.values && currOpts.values[dim]) currentVal = currOpts.values[dim];
+                     }
+                %>
+                  <div>
+                    <label style="display:block; margin-bottom: 4px; font-weight: 500; font-size: 13px; color: var(--text-2);"><%= dim %></label>
+                    <select class="input variant-select" data-dim="<%= dim %>" style="width:100%; padding: 8px;">
+                      <% Array.from(vals).forEach(val => { %>
+                        <option value="<%= val.replace(/"/g, '&quot;') %>" <%= val === currentVal ? 'selected' : '' %>><%= val %></option>
+                      <% }) %>
+                    </select>
+                  </div>
+                <% }) %>
+              </div>
+              <script>
+                const varData = <%- JSON.stringify(variants.map(v => {
+                  const vOpts = v.opts ? (typeof v.opts === 'string' ? JSON.parse(v.opts) : v.opts) : {};
+                  return { id: v.id, slug: v.slug, vals: vOpts.values || {} };
+                })) %>;
+                
+                document.querySelectorAll('.variant-select').forEach(sel => {
+                  sel.addEventListener('change', (e) => {
+                    const changedDim = e.target.dataset.dim;
+                    const changedVal = e.target.value;
+                    
+                    const selects = Array.from(document.querySelectorAll('.variant-select'));
+                    const currentCombo = {};
+                    selects.forEach(s => {
+                      if (s.value) currentCombo[s.dataset.dim] = s.value;
+                    });
+                    
+                    let match = varData.find(v => {
+                      for (const dim of Object.keys(currentCombo)) {
+                        if (v.vals[dim] !== currentCombo[dim]) return false;
+                      }
+                      return Object.keys(v.vals).length > 0;
+                    });
+                    
+                    if (!match) {
+                      match = varData.find(v => v.vals[changedDim] === changedVal);
+                    }
+                    
+                    if (match) {
+                      window.location.href = '/p/' + match.slug;
+                    }
+                  });
+                });
+              </script>
+            <% } else { %>
+              <label style="display:block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Select Option</label>
+              <div class="variant-swatches" id="variant-swatches">
+                <% variants.forEach((v) => { 
+                    let label = v.name;
+                    if (label.includes(' - ')) {
+                      label = label.split(' - ').pop();
+                    }
+                %>
+                  <a href="/p/<%= v.slug %>" class="variant-swatch <%= v.id===p.id?'on':'' %>" style="display:inline-block; text-align:center; text-decoration:none;">
+                    <%= label %>
+                  </a>
+                <% }) %>
+              </div>
+            <% } %>
+            <input type="hidden" name="id" value="<%= p.id %>">
+          </div>
+        <% } else { %>
+          <input type="hidden" name="id" value="<%= p.id %>">
+        <% } %>
+        <div class="buy-row">
+          <a href="https://wa.me/<%= S.whatsapp %>?text=Hi,%20we%20would%20like%20to%20enquire%20about%20this%20product:%20<%= encodeURIComponent(SITE_URL + '/p/' + p.slug) %>" target="_blank" class="btn btn-lg btn-gold" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; flex:1">Enquire Now</a>
+          <button class="pcard-fav <%= wishIds.includes(p.id)?'on':'' %>" type="button" data-wish="<%= p.id %>" style="position:static;width:44px;height:44px" aria-label="Save">
+            <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.5A4 4 0 0112 8a4 4 0 017 2.5c0 5-7 9.5-7 9.5z" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </form>
+      <p class="muted" style="font-size:13px;margin-top:-6px">Need personalization or customization for this product? <a href="https://wa.me/<%= S.whatsapp %>?text=Hi,%20I%20need%20personalization%20or%20customization%20in%20this%20product:%20<%= encodeURIComponent(SITE_URL + '/p/' + p.slug) %>">Ask on WhatsApp</a>.</p>
+
+
+
+
+      <div style="display: flex; gap: 24px; margin-top: 22px; align-items: flex-start; flex-wrap: wrap;">
+        <table class="spec" style="flex: 1; width: auto; min-width: 220px;">
+          <tr><th>SKU</th><td id="spec-sku"><%= p.sku %></td></tr>
+          <tr><th>Pack size</th><td><%- p.pack_size || '<span style="vertical-align: middle;">-</span>' %></td></tr>
+          <tr><th>Unit</th><td>Sold per <%= p.unit %></td></tr>
+          <tr><th>Minimum order</th><td><%= p.moq %> <%= p.unit %><%= p.moq>1?'s':'' %></td></tr>
+          <tr><th>Approx. weight</th><td><%- p.weight_g ? (p.weight_g>=1000 ? (p.weight_g/1000).toFixed(2)+' kg' : p.weight_g+' g') : '<span style="vertical-align: middle;">-</span>' %></td></tr>
+          <tr><th>Category</th><td><%- cat ? cat.name : '<span style="vertical-align: middle;">-</span>' %></td></tr>
+          <tr><th>HSN</th><td><%- p.hsn || '<span style="vertical-align: middle;">-</span>' %></td></tr>
+          <tr><th>GST</th><td><%= Math.round(p.gst_rate) %>%</td></tr>
+        </table>
+
+        <div class="prose" style="flex: 1; min-width: 250px; font-size: 14px; margin-top: 9px;">
+          <% for(const para of String(p.description).split('\n\n')){ %>
+            <% if (para.trim().startsWith('<')) { %>
+              <%- para %>
+            <% } else { %>
+              <p><%- para %></p>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="on" data-tab="bulk">Bulk &amp; custom orders</button>
+  </div>
+  <div class="tabpane on" id="tab-bulk"><div class="prose">
+    <p>Buying by the carton? Add this item to your <a href="/enquiry">enquiry list</a> with the quantity you actually need and we will quote against it within one business day. There is no obligation and no payment at that stage.</p>
+
+    <p>Approved wholesale accounts see slab pricing across the whole catalogue automatically. <a href="/register?type=wholesale">Apply for an account</a> or WhatsApp <b><%= S.phone %></b>.</p>
+  </div></div>
+
+  <% if(related.length){ %>
+  <section class="section">
+    <div class="section-head"><div><h2>Customers also buy</h2><p>Frequently ordered alongside this item.</p></div></div>
+    <div class="grid g4"><% for(const p of related){ %><%- include('partials/pcard',{p}) %><% } %></div>
+  </section><% } %>
+</div>
+<%- include('partials/bottom') %>

@@ -1,0 +1,99 @@
+<%- include('partials/top') %>
+
+<section class="hero"><div class="wrap">
+  <div>
+    <span class="kicker">Wholesale since 1993</span>
+    <h1>The garment accessories your line runs on — in stock, in Delhi.</h1>
+    <p>Tagging guns and barbs, tags and labels, pins, threading thread and packing consumables. Same-day dispatch on orders placed before 2 PM. Register an account to send bulk enquiries.</p>
+    <div class="hero-cta">
+      <a class="btn btn-gold btn-lg" href="/products">Browse the catalogue</a>
+      <a class="btn btn-ghost btn-lg" href="/wholesale" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.34)">Open a wholesale account</a>
+    </div>
+    <div class="hero-stats">
+      <div><b>33 yrs</b><span>Supplying Delhi's garment trade</span></div>
+      <div><b>2,000+</b><span>Exporters, salons &amp; retailers served</span></div>
+      <div><b>Same day</b><span>Dispatch before 2 PM</span></div>
+      <div><b>1 day</b><span>WhatsApp response, guaranteed</span></div>
+    </div>
+  </div>
+  <div class="hero-art"><img src="/static/img/hero.svg" alt="" width="760" height="560"></div>
+</div></section>
+
+
+
+<section class="section"><div class="wrap">
+  <div class="section-head">
+    <div><h2>Shop by category</h2><p>Five ranges, twenty-four categories, everything a garment floor consumes.</p></div>
+    <a class="btn btn-ghost btn-sm" href="/products">View all products</a>
+  </div>
+  <div class="grid g5">
+    <% for(const c of topCats){ %>
+      <a class="cat-tile" href="/c/<%= c.slug %>" style="min-width: 0;">
+        <img src="<%= c.image || '/static/img/placeholder.svg' %>" alt="<%= c.name %>" loading="lazy" width="240" height="240">
+        <b><%= c.name %></b><span><%= c.n %> product<%= c.n===1?'':'s' %></span>
+      </a>
+    <% } %>
+  </div>
+</div></section>
+
+<% if(featured.length){ %>
+<section class="section" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
+  <div class="section-head">
+    <div><h2>Best sellers this quarter</h2><p>What Delhi's exporters and salons reorder most.</p></div>
+    <a class="btn btn-ghost btn-sm" href="/products?sort=popular">See all</a>
+  </div>
+  <div class="grid g4"><% for(const p of featured){ %><%- include('partials/pcard',{p}) %><% } %></div>
+</div></section>
+<% } %>
+
+<% if(latest.length){ %>
+<section class="section"><div class="wrap">
+  <div class="section-head"><div><h2>New in stock</h2><p>Latest additions to the catalogue.</p></div>
+    <a class="btn btn-ghost btn-sm" href="/products?sort=newest">See all new</a></div>
+  <div class="grid g4"><% for(const p of latest){ %><%- include('partials/pcard',{p}) %><% } %></div>
+</div></section>
+<% } %>
+
+<section class="section" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap">
+  <div class="grid g2" style="gap:24px;align-items:stretch">
+    <div class="card card-pad" style="background:linear-gradient(140deg,#1D3159,#0E1B33);color:#fff;border:0">
+      <span class="badge badge-gold" style="background:rgba(224,169,74,.16);color:var(--gold-2)">For businesses</span>
+      <h2 style="color:#fff;margin-top:14px">Bulk sourcing made easy.</h2>
+      <p style="color:#B9C6DD">Add items to an enquiry list and we quote against your exact requirement within one business day.</p>
+      <ul style="color:#B9C6DD;font-size:14.5px;padding-left:20px;line-height:2">
+        <li>Competitive volume pricing</li>
+        <li>GST invoices against your business name</li>
+      </ul>
+      <a class="btn btn-gold" href="/register?type=wholesale">Apply for a wholesale account</a>
+    </div>
+    <div class="card card-pad">
+      <span class="badge">Since 1993</span>
+      <h2 style="margin-top:14px">Thirty years of reliable service.</h2>
+      <p class="lead">Established in 1993, our shop runs on transparency. You can always count on us for honest answers and fair prices right out of the gate.</p>
+      <p><strong>Text us on WhatsApp.</strong></p>
+      <p>Sending a message is the absolute best way to reach us. It guarantees a prompt, accurate reply and keeps your order details perfectly clear.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
+        <a class="btn" href="/pages/about-us">Read our story</a>
+        <a class="btn btn-ghost" href="https://wa.me/<%= S.whatsapp %>?text=Hi%20<%= encodeURIComponent(S.site_name) %>,%20we%20would%20like%20to%20enquire%20about%20the%20products%20that%20you%20deal%20in.">WhatsApp <%= S.phone %></a>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section class="section"><div class="wrap">
+  <div class="section-head"><div><h2>Every category</h2><p>Jump straight to what you need.</p></div></div>
+  <div class="grid g3" style="gap:20px">
+    <% for(const g of tree){ %>
+      <div class="card card-pad cat-bg-card" style="background-image: url('/static/img/categories/<%= g.slug %>.png');">
+        <h3 style="margin-bottom:10px"><a href="/c/<%= g.slug %>"><%= g.name %></a></h3>
+        <p class="muted" style="font-size:14px"><%= g.description %></p>
+        <% if(g.children.length){ %>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px">
+          <% for(const c of g.children){ %><a class="pill" href="/c/<%= c.slug %>"><%= c.name %></a><% } %>
+        </div><% } %>
+      </div>
+    <% } %>
+  </div>
+</div></section>
+
+<%- include('partials/bottom') %>

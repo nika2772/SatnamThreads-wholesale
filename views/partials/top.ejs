@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>
+    <%= title ? title + ' · ' + S.site_name : S.site_name + ' — ' + S.tagline %>
+  </title>
+  <meta name="description"
+    content="<%= typeof metaDesc !== 'undefined' && metaDesc ? metaDesc : 'Satnam Threads supplies tagging guns, barbs, tags, labels, pins, eyebrow threading thread and packing consumables to garment exporters, salons and retailers across India. Wholesale since 1993.' %>">
+  <link rel="canonical" href="<%= SITE_URL + path %>">
+  <meta property="og:site_name" content="<%= S.site_name %>">
+  <meta property="og:title" content="<%= title || S.site_name %>">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="<%= SITE_URL %>/static/img/hero.svg">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/style.css?v=11">
+  
+  <script type="application/ld+json"><%- JSON.stringify({
+  "@context":"https://schema.org","@type":"Organization",
+  name:S.site_name, url:SITE_URL, logo:SITE_URL+"/static/img/brand/logo.jpg",
+  description:"Wholesale supplier of garment accessories, tagging systems and threading thread. Founded 1993.",
+  foundingDate:"1993",
+  telephone:S.phone, email:S.email,
+  address:{"@type":"PostalAddress",addressLocality:"Janakpuri, New Delhi",addressRegion:"Delhi",postalCode:"110058",addressCountry:"IN"}
+}) %></script>
+  <%- typeof jsonld !=='undefined' && jsonld ? '<script type="application/ld+json">' +JSON.stringify(jsonld)+'</script>'
+    : '' %>
+</head>
+
+<body>
+  <div class="toast-host" id="toasts">
+    <% for(const f of flash){ %>
+      <div class="toast <%= f.type==='error'?'err':(f.type==='warn'?'warn':'') %>">
+        <%= f.msg %>
+      </div>
+      <% } %>
+  </div>
+
+  <div class="announce">
+    <div class="wrap">
+      <span>
+        <%= S.announcement %>
+      </span>
+      <span class="announce-links">
+
+        <a href="/contact">Contact</a>
+        <% if(user){ %><a href="/account">My account</a>
+          <% } else { %><a href="/login">Login</a>
+            <% } %>
+      </span>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="wrap header-main">
+      <button class="menu-toggle" onclick="document.querySelector('.nav').classList.toggle('open')" aria-label="Menu">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round" />
+        </svg>
+      </button>
+      <a class="logo" href="/" style="display:flex; align-items:center; gap:16px; text-decoration:none;">
+      <img src="/static/img/brand/logo.jpg" alt="<%= S.site_name %>" style="height: 64px; width: auto; object-fit: contain;">
+      <div style="display:flex; flex-direction:column; justify-content:center;">
+        <span style="font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1;">Satnam Threads</span>
+        <span style="font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Since 1993</span>
+      </div>
+    </a>
+      <form class="searchbar" action="/products" method="get" role="search" style="position:relative">
+        <input type="search" name="q" value="<%= query.q || '' %>"
+          placeholder="Search tag guns, barbs, threading thread, labels…" aria-label="Search products"
+          autocomplete="off">
+        <button type="submit" aria-label="Search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.6-3.6" stroke-linecap="round" />
+          </svg></button>
+        <div id="global-search-dropdown" class="search-dropdown hidden"></div>
+      </form>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const input = document.querySelector('.searchbar input[name="q"]');
+          const dropdown = document.getElementById('global-search-dropdown');
+          if (!input || !dropdown) return;
+
+          function highlight(text, query) {
+            if (!query || !text) return text;
+            const terms = query.split(/\s+/).filter(t => t.length > 0)
+              .sort((a, b) => b.length - a.length)
+              .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            if (terms.length === 0) return text;
+            const regex = new RegExp('(^|\\W)(' + terms.join('|') + ')', 'gi');
+            return text.replace(regex, '$1<mark>$2</mark>');
+          }
+
+          let timeout = null;
+          input.addEventListener('input', (e) => {
+            clearTimeout(timeout);
+            const q = e.target.value.trim();
+            if (!q) {
+              dropdown.classList.add('hidden');
+              return;
+            }
+
+            timeout = setTimeout(() => {
+              fetch('/api/search?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(data => {
+                  if (!data.results || data.results.length === 0) {
+                    dropdown.innerHTML = '<div class="dropdown-empty">Nothing matched that</div>';
+                    dropdown.classList.remove('hidden');
+                    return;
+                  }
+                  let html = '';
+                  for (const p of data.results) {
+                    html += `
+              <a href="/p/${p.slug}" class="dropdown-item">
+                <img src="${p.image}" alt="">
+                <div class="di-info">
+                  <div class="di-cat">${p.category}</div>
+                  <div class="di-title">${highlight(p.title, q)}</div>
+                </div>
+              </a>
+            `;
+                  }
+                  dropdown.innerHTML = html;
+                  dropdown.classList.remove('hidden');
+                });
+            }, 150);
+          });
+
+          document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+              dropdown.classList.add('hidden');
+            }
+          });
+
+          input.addEventListener('focus', () => {
+            if (input.value.trim() && dropdown.innerHTML.trim() !== '') {
+              dropdown.classList.remove('hidden');
+            }
+          });
+        });
+      </script>
+      <div class="head-actions">
+        <a class="hact" href="/wishlist" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 20s-7-4.5-7-9.5A4 4 0 0112 8a4 4 0 017 2.5c0 5-7 9.5-7 9.5z" stroke-linejoin="round" />
+          </svg>
+          <span>Wishlist</span>
+          <% if(counts.wish){ %><i class="count">
+              <%= counts.wish %>
+            </i>
+            <% } %>
+        </a>
+
+
+        <a class="hact hide-on-mobile" href="<%= user ? '/account' : '/login' %>" aria-label="Account">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="3.6" />
+            <path d="M4.5 20a7.5 7.5 0 0115 0" stroke-linecap="round" />
+          </svg>
+          <span>
+            <%= user ? (user.name.split(' ')[0]) : ' Account' %>
+          </span>
+        </a>
+        <div class="head-phone">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.7">
+            <path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a1 1 0 01-1 1A16 16 0 014 5a1 1 0 011-1z"
+              stroke-linejoin="round" />
+          </svg>
+          <div><b>
+              <%= S.phone %>
+            </b><span>Mon–Sat, 10–6</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <div class="wrap">
+      <a href="/" class="<%= path==='/' ? 'active':'' %>">Home</a>
+      <div class="megawrap">
+        <button class="navbtn" onclick="this.parentNode.classList.toggle('open')" aria-expanded="false">
+          All products
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="mega">
+          <% for(const g of tree){ %>
+            <div>
+              <h5><a href="/c/<%= g.slug %>">
+                  <%= g.name %>
+                </a></h5>
+              <% if(g.children.length){ %>
+                <ul>
+                  <% for(const c of g.children){ %>
+                    <li><a href="/c/<%= c.slug %>">
+                        <%= c.name %>
+                      </a></li>
+                    <% } %>
+                </ul>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+      </div>
+      <a href="/products" class="<%= path==='/products' ? 'active':'' %>">Shop all</a>
+      <a href="/wholesale" class="<%= path==='/wholesale' ? 'active':'' %>">Wholesale</a>
+      <a href="/pages/about-us">About</a>
+      <a class="spacer"
+        href="https://wa.me/<%= S.whatsapp %>?text=Hi%20<%= encodeURIComponent(S.site_name) %>,%20we%20would%20like%20to%20enquire%20about%20the%20products%20that%20you%20deal%20in."
+        style="background:#25D366; color:#fff; padding:6px 14px; border-radius:6px; font-weight:600; font-size:13px; align-self:center; border-bottom:none; text-decoration:none;">WhatsApp
+        us</a>
+      <% if(user && user.role==='admin' ){ %><a href="/admin" style="color:var(--gold)">Admin panel</a>
+        <% } %>
+    </div>
+  </nav>

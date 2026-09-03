@@ -1,0 +1,13 @@
+<%- include('admin/partials-top',{title:'Subscribers',nav:'subs'}) %>
+<div class="topbar"><div><h1>Newsletter subscribers</h1><p class="muted" style="margin:0"><%= subs.length %> emails</p></div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-ghost" href="/admin/subscribers/export">Export CSV</a>
+    <a class="btn btn-primary" href="/admin/subscribers/blast">Send Email Blast</a>
+  </div>
+</div>
+<div class="tablewrap"><table class="table"><thead><tr><th>Email</th><th>Subscribed</th><th></th></tr></thead>
+<tbody><% for(const s of subs){ %><tr><td><%= s.email %></td><td class="muted"><%= fmtDate(s.created_at) %></td>
+  <td><a class="btn btn-sm btn-ghost" href="/admin/subscribers/<%= s.id %>/delete" onclick="confirmDel(event,'Remove this subscriber?')">Remove</a></td></tr><% } %>
+<% if(!subs.length){ %><tr><td colspan="3" class="empty">No subscribers yet.</td></tr><% } %>
+</tbody></table></div>
+<%- include('admin/partials-bottom') %>

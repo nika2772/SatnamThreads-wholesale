@@ -1,0 +1,36 @@
+<%- include('admin/partials-top',{title:'Categories',nav:'cat'}) %>
+<div class="topbar"><div><h1>Categories</h1><p class="muted" style="margin:0"><%= cats.length %> categories</p></div></div>
+<div class="grid" style="grid-template-columns:1fr 340px;align-items:start">
+  <div class="tablewrap"><table class="table">
+    <thead><tr><th style="width: 40px; text-align: center; color: var(--muted)">#</th><th></th><th>Name</th><th>Slug</th><th class="num">Products</th><th>Status</th><th></th></tr></thead>
+    <tbody><% cats.forEach((c, i) => { %><tr>
+      <td style="text-align: center; color: var(--muted); font-size: 13px;"><%= i + 1 %></td>
+      <td><img class="thumb" src="<%= c.image || '/static/img/placeholder.svg' %>" alt=""></td>
+      <td style="<%= c.parent_id?'padding-left:26px':'font-weight:600' %>"><%= c.parent_id?'— ':'' %><%= c.name %></td>
+      <td class="muted"><%= c.slug %></td>
+      <td class="num"><%= c.n %></td>
+      <td><span class="badge <%= c.is_active?'badge-ok':'badge-muted' %>"><%= c.is_active?'Active':'Hidden' %></span></td>
+      <td style="white-space:nowrap">
+        <a class="btn btn-sm btn-ghost" href="/admin/categories?edit=<%= c.id %>">Edit</a>
+        <a class="btn btn-sm btn-ghost" href="/admin/categories/<%= c.id %>/delete" onclick="confirmDel(event,'Delete this category? Products in it will become uncategorised.')">Delete</a>
+      </td></tr><% }) %></tbody></table></div>
+  <div class="card card-pad">
+    <h2><%= editing ? 'Edit category' : 'Add category' %></h2>
+    <form method="post" action="<%= editing ? '/admin/categories/'+editing.id : '/admin/categories/new' %>" enctype="multipart/form-data">
+      <div class="field"><label>Name *</label><input class="input" name="name" required value="<%= editing?editing.name:'' %>" data-autoslug="#cslug"></div>
+      <div class="field"><label>Slug *</label><input class="input" id="cslug" name="slug" required value="<%= editing?editing.slug:'' %>"></div>
+      <div class="field"><label>Parent category</label>
+        <select class="input" name="parent_id"><option value="">— top level —</option>
+          <% for(const c of cats.filter(x=>!x.parent_id)){ %>
+            <% if(!editing || c.id!==editing.id){ %><option value="<%= c.id %>" <%= editing && String(editing.parent_id)===String(c.id)?'selected':'' %>><%= c.name %></option><% } %>
+          <% } %></select></div>
+      <div class="field"><label>Description</label><textarea class="input" name="description" style="min-height:80px"><%= editing?editing.description:'' %></textarea></div>
+      <div class="field"><label>Sort order</label><input class="input" type="number" name="sort" value="<%= editing?editing.sort:0 %>"></div>
+      <div class="field"><label>Image</label><input class="input" type="file" name="image" accept="image/*"></div>
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:14px"><input type="checkbox" name="is_active" value="1" <%= !editing || editing.is_active ? 'checked':'' %>> Visible</label>
+      <button class="btn btn-block" type="submit"><%= editing?'Save changes':'Create category' %></button>
+      <% if(editing){ %><a class="btn btn-block btn-ghost" style="margin-top:8px" href="/admin/categories">Cancel</a><% } %>
+    </form>
+  </div>
+</div>
+<%- include('admin/partials-bottom') %>

@@ -1,0 +1,86 @@
+<%- include('partials/top') %>
+<div class="wrap">
+  <div class="breadcrumb"><a href="/">Home</a> › <span>Enquiry list</span></div>
+  <h1>Bulk enquiry list</h1>
+  <p class="lead" style="max-width:70ch">Add the products and the quantities you actually need. We quote the whole basket within one business day. No payment, no obligation.</p>
+
+  <% if(!items.length){ %>
+    <div class="card empty">
+      <h3>Your enquiry list is empty</h3>
+      <p>Browse the catalogue and hit <b>Enquire</b> on anything you want quoted. You can mix as many products as you like.</p>
+      <a class="btn" href="/products">Browse the catalogue</a>
+    </div>
+  <% } else { %>
+  <div class="cart-layout">
+    <div>
+      <div class="card card-pad">
+        <% for(const it of items){ %>
+        <div class="cart-item">
+          <img src="<%= firstImage(it) %>" alt="" width="82" height="82">
+          <div class="ci-main">
+            <h4><a href="/p/<%= it.slug %>"><%= it.name %></a></h4>
+            <div class="muted" style="font-size:13px"><%= it.sku %> · <%= it.pack_size || it.unit %> · MOQ <%= it.moq %></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+              <form method="post" action="/enquiry/update" style="display:flex;gap:6px;align-items:center">
+                <input type="hidden" name="id" value="<%= it.id %>">
+                <div class="qty" style="border-width:1px">
+                  <button type="button" onclick="stepQty(this,-1)">−</button>
+                  <input type="number" name="qty" value="<%= it.qty %>" min="<%= it.moq %>" style="width:66px" onchange="this.form.submit()">
+                  <button type="button" onclick="stepQty(this,1)">+</button>
+                </div>
+                <noscript><button class="btn btn-sm btn-ghost" type="submit">Update</button></noscript>
+              </form>
+              <form method="post" action="/enquiry/remove"><input type="hidden" name="id" value="<%= it.id %>">
+                <button class="btn-link" type="submit" style="color:var(--bad);cursor:pointer">Remove</button></form>
+            </div>
+          </div>
+
+        </div>
+        <% } %>
+      </div>
+
+      <div class="card card-pad" style="margin-top:20px">
+        <h2>Your details</h2>
+        <p class="muted">So we know who to quote and how to reach you.</p>
+        <form method="post" action="/enquiry/submit">
+          <div class="row">
+            <div class="field"><label>Contact name *</label><input class="input" name="name" required value="<%= user?user.name:'' %>"></div>
+            <div class="field"><label>Business name</label><input class="input" name="company" value="<%= user?user.company:'' %>"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Email *</label><input class="input" type="email" name="email" required value="<%= user?user.email:'' %>"></div>
+            <div class="field"><label>Phone / WhatsApp *</label><input class="input" name="phone" required value="<%= user?user.phone:'' %>"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>City *</label><input class="input" name="city" required value="<%= user?user.city:'' %>" placeholder="Delivery city"></div>
+            <div class="field"><label>GSTIN</label><input class="input" name="gstin" value="<%= user?user.gstin:'' %>" placeholder="Optional"></div>
+          </div>
+          <div class="field"><label>Anything else we should know?</label>
+            <textarea class="input" name="message" placeholder="Target price, delivery deadline, order notes…"></textarea></div>
+          <button class="btn btn-lg btn-block" type="submit">Submit enquiry</button>
+          <p class="muted" style="font-size:12.5px;margin-top:10px">We reply within one business day, usually on WhatsApp. Submitting an enquiry does not place an order.</p>
+        </form>
+      </div>
+    </div>
+
+    <aside class="summary">
+      <div class="card card-pad">
+        <h3>Enquiry summary</h3>
+        <div class="sum-row"><span>Line items</span><b><%= items.length %></b></div>
+        <div class="sum-row"><span>Total quantity</span><b><%= totalQty %></b></div>
+        <p class="muted" style="font-size:12.5px">Your quoted price will depend on exact volumes and delivery requirements.</p>
+        <hr>
+        <h4>What happens next</h4>
+        <ol class="muted" style="font-size:13.5px;padding-left:18px;line-height:1.9;margin:0">
+          <li>We check stock and freight</li>
+          <li>You get a written quote</li>
+          <li>Approve it and we dispatch — payment on your terms</li>
+        </ol>
+        <hr>
+        <a class="btn btn-ghost btn-block" href="https://wa.me/<%= S.whatsapp %>">Prefer WhatsApp? Message us</a>
+      </div>
+    </aside>
+  </div>
+  <% } %>
+</div>
+<%- include('partials/bottom') %>

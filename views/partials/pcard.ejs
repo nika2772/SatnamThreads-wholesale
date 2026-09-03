@@ -1,0 +1,37 @@
+<article class="pcard">
+  <div class="pcard-img">
+    <% const pImgs = json(p.images, []); %>
+    <% if (pImgs.length > 1) { %>
+      <div class="pcard-carousel" id="pcard-car-<%= p.id %>">
+        <% pImgs.forEach(img => { %>
+          <a href="/p/<%= p.slug %>"><img src="<%= img %>" alt="<%= p.name %>" loading="lazy" width="400" height="400"></a>
+        <% }) %>
+      </div>
+      <button class="pcard-nav prev" aria-label="Previous image" onclick="event.preventDefault(); navPcard(<%= p.id %>, -1)">❮</button>
+      <button class="pcard-nav next" aria-label="Next image" onclick="event.preventDefault(); navPcard(<%= p.id %>, 1)">❯</button>
+    <% } else { %>
+      <a href="/p/<%= p.slug %>"><img src="<%= pImgs[0] || '/static/img/placeholder.svg' %>" alt="<%= p.name %>" loading="lazy" width="400" height="400"></a>
+    <% } %>
+    <div class="pcard-flags">
+      <% if(p.is_new){ %><span class="badge badge-new">New</span><% } %>
+
+      <% if(p.stock<=0){ %><span class="badge badge-muted">Made to order</span><% } %>
+    </div>
+    <button class="pcard-fav <%= wishIds.includes(p.id)?'on':'' %>" data-wish="<%= p.id %>" aria-label="Save to wishlist">
+      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.5A4 4 0 0112 8a4 4 0 017 2.5c0 5-7 9.5-7 9.5z" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+  <div class="pcard-body">
+    <span class="pcard-cat"><%= p.cat || 'Accessories' %></span>
+    <h3 class="pcard-title"><a href="/p/<%= p.slug %>"><%- typeof highlightText !== 'undefined' && typeof query !== 'undefined' ? highlightText(p.name, query.q) : p.name %></a></h3>
+    <div class="stars">
+      <%- '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5-Math.round(p.rating)) %><span><%= p.review_count %></span>
+    </div>
+    <div class="pcard-meta"><%= p.pack_size || (p.unit + ' pack') %></div>
+
+    <div class="pcard-actions">
+
+      <a href="https://wa.me/<%= S.whatsapp %>?text=Hi,%20we%20would%20like%20to%20enquire%20about%20this%20product:%20<%= encodeURIComponent(SITE_URL + '/p/' + p.slug) %>" target="_blank" class="btn btn-sm btn-ghost btn-block" style="flex:1; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Enquire</a>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,16 @@
+<%- include('admin/partials-top',{title:'Messages',nav:'msg'}) %>
+<div class="topbar"><div><h1>Contact messages</h1><p class="muted" style="margin:0"><%= msgs.length %> messages</p></div></div>
+<% if(!msgs.length){ %><div class="card empty">No messages yet.</div><% } %>
+<% for(const m of msgs){ %>
+<div class="card card-pad" style="margin-bottom:12px;<%= m.is_read?'':'border-left:4px solid var(--gold)' %>">
+  <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start">
+    <div><b><%= m.name %></b> <% if(m.subject){ %><span class="muted">· <%= m.subject %></span><% } %>
+      <div class="muted" style="font-size:13px"><a href="mailto:<%= m.email %>"><%= m.email %></a> · <a href="https://wa.me/91<%= String(m.phone).replace(/\D/g,'').slice(-10) %>"><%= m.phone %></a> · <%= timeAgo(m.created_at) %></div></div>
+    <div style="display:flex;gap:6px">
+      <% if(!m.is_read){ %><a class="btn btn-sm btn-ghost" href="/admin/messages/<%= m.id %>/read">Mark read</a><% } %>
+      <a class="btn btn-sm btn-ghost" href="/admin/messages/<%= m.id %>/delete" onclick="confirmDel(event,'Delete this message?')">Delete</a>
+    </div>
+  </div>
+  <p style="margin:12px 0 0;white-space:pre-wrap"><%= m.body %></p>
+</div><% } %>
+<%- include('admin/partials-bottom') %>

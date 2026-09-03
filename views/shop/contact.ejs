@@ -1,0 +1,41 @@
+<%- include('partials/top') %>
+<div class="wrap">
+  <div class="breadcrumb"><a href="/">Home</a> › <span>Contact</span></div>
+  <div class="grid g2" style="gap:32px;align-items:start;padding-bottom:60px">
+    <div>
+      <h1>Talk to us</h1>
+      <p class="lead">WhatsApp is our primary channel — it keeps a written record both sides can refer back to. Message us and you will hear back within one business day.</p>
+      <div class="card card-pad" style="margin-top:20px">
+        <div style="font-size:14px;line-height:1.9;color:var(--ink)">
+          <div style="margin-bottom:14px"><b>Call / WhatsApp</b><br><a href="https://wa.me/<%= S.whatsapp %>" style="font-size:20px;font-family:var(--serif)"><%= S.phone %></a></div>
+          <div style="margin-bottom:14px"><b>Email</b><br><a href="mailto:<%= S.email %>"><%= S.email %></a></div>
+          <div style="margin-bottom:14px"><b>Address</b><br><%= S.address %></div>
+          <div style="margin-bottom:14px"><b>Working hours</b><br><%= S.hours %> · Closed Sundays</div>
+
+        </div>
+        <a class="btn btn-gold btn-block" style="margin-top:16px" href="https://wa.me/<%= S.whatsapp %>">Open WhatsApp chat</a>
+      </div>
+      <div class="notice notice-info" style="margin-top:16px">
+        <span>💡</span><div><b>Placing a bulk order?</b> Use the <a href="/enquiry">enquiry list</a> instead — add the items and quantities you need and we will quote the whole basket at once.</div>
+      </div>
+    </div>
+    <div class="card card-pad">
+      <h2>Send us a message</h2>
+      <p class="muted">For quotes, stock checks or anything else.</p>
+      <form method="post" action="/contact">
+        <div class="row">
+          <div class="field"><label>Your name *</label><input class="input" name="name" required></div>
+          <div class="field"><label>Business name</label><input class="input" name="subject" placeholder="Optional"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Email *</label><input class="input" type="email" name="email" required></div>
+          <div class="field"><label>Phone / WhatsApp *</label><input class="input" name="phone" required></div>
+        </div>
+        <div class="field"><label>How can we help? *</label><textarea class="input" name="body" required placeholder="Tell us the products and quantities you're after, or the question you have."></textarea></div>
+        <button class="btn btn-lg btn-block" type="submit">Send message</button>
+        <p class="muted" style="font-size:12.5px;margin-top:10px">We reply within one business day. We never share your details or send marketing you didn't ask for.</p>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('partials/bottom') %>

@@ -1,0 +1,61 @@
+<%- include('admin/partials-top',{title:'Enquiry '+e.enquiry_no,nav:'enq'}) %>
+<div class="topbar"><div><h1><%= e.enquiry_no %></h1><p class="muted" style="margin:0">Received <%= fmtDate(e.created_at) %></p></div>
+  <a class="btn btn-ghost" href="/admin/enquiries">← All enquiries</a></div>
+<div class="grid" style="grid-template-columns:1fr 330px;align-items:start">
+  <div>
+    <form method="post" action="/admin/enquiries/<%= e.id %>">
+    <div class="card">
+      <div class="card-pad" style="padding-bottom:0"><h2>Requested items</h2>
+        <p class="muted" style="font-size:13px">Enter your quoted unit price against each line. The total updates when you save.</p></div>
+      <table class="table"><thead><tr><th>Product</th><th class="num">Qty</th><th class="num">List price</th><th class="num" style="width:150px">Your quote</th></tr></thead>
+      <tbody><% for(const it of items){ %><tr>
+        <td><b><%= it.name %></b><br><span class="muted"><%= it.sku %></span></td>
+        <td class="num"><b><%= it.qty %></b></td>
+        <td class="num"><%= money(it.list_price) %></td>
+        <td class="num"><input type="hidden" name="item_id[]" value="<%= it.id %>">
+          <input class="input" type="number" step="0.01" name="quoted_price[]" value="<%= it.quoted_price || it.list_price %>" style="text-align:right"></td>
+      </tr><% } %></tbody></table>
+    </div>
+    <div class="card card-pad" style="margin-top:16px">
+      <h2>Your quote</h2>
+      <div class="row">
+        <div class="field"><label>Status</label><select class="input" name="status">
+          <% for(const s of ['new','quoted','won','lost']){ %><option value="<%= s %>" <%= e.status===s?'selected':'' %>><%= s %></option><% } %></select></div>
+        <div class="field"><label>Quoted total (₹) <span class="muted">— blank to auto-calculate</span></label>
+          <input class="input" type="number" step="0.01" name="quoted_total" value="<%= e.quoted_total||'' %>"></div>
+      </div>
+      <div class="field"><label>Quote notes <span class="muted">— the customer sees this on their account page</span></label>
+        <textarea class="input" name="quote_notes" placeholder="Dispatch 3 working days from confirmation."><%= e.quote_notes||'' %></textarea></div>
+      <button class="btn" type="submit">Save quote</button>
+    </div>
+    </form>
+    <% if(e.message){ %><div class="card card-pad" style="margin-top:16px"><h3>Customer's message</h3><p style="margin:0"><%= e.message %></p></div><% } %>
+  </div>
+  <div>
+    <div class="card card-pad">
+      <h2>Contact</h2>
+      <p style="line-height:2;margin:0">
+        <b><%= e.name %></b><br>
+        <% if(e.company){ %><%= e.company %><br><% } %>
+        <%= e.city %><br>
+        <a href="tel:<%= e.phone %>"><%= e.phone %></a><br>
+        <a href="mailto:<%= e.email %>"><%= e.email %></a>
+        <% if(e.gstin){ %><br><span class="muted">GSTIN <%= e.gstin %></span><% } %>
+      </p>
+      <a class="btn btn-block btn-gold" style="margin-top:14px" target="_blank"
+         href="https://wa.me/91<%= String(e.phone).replace(/\D/g,'').slice(-10) %>?text=<%= encodeURIComponent('Hi '+e.name+', thanks for enquiry '+e.enquiry_no+' with Satnam Threads. Our quote:') %>">WhatsApp the quote</a>
+      <a class="btn btn-block btn-ghost" style="margin-top:8px" href="mailto:<%= e.email %>?subject=<%= encodeURIComponent('Quotation '+e.enquiry_no+' — Satnam Threads') %>">Email the quote</a>
+    </div>
+    <div class="card card-pad" style="margin-top:16px">
+      <h3>Summary</h3>
+      <table class="table" style="font-size:13.5px"><tbody>
+        <tr><td>Line items</td><td class="num"><b><%= items.length %></b></td></tr>
+        <tr><td>Total quantity</td><td class="num"><b><%= totalQty %></b></td></tr>
+        <tr><td>At list price</td><td class="num"><%= money(indicative) %></td></tr>
+        <tr><td>Quoted</td><td class="num"><b><%= e.quoted_total ? money(e.quoted_total) : '—' %></b></td></tr>
+      </tbody></table>
+      <a class="btn btn-danger btn-block" style="margin-top:10px" href="/admin/enquiries/<%= e.id %>/delete" onclick="confirmDel(event,'Delete this enquiry?')">Delete enquiry</a>
+    </div>
+  </div>
+</div>
+<%- include('admin/partials-bottom') %>

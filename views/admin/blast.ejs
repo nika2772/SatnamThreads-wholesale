@@ -1,0 +1,29 @@
+<%- include('admin/partials-top',{title:'Email Blast',nav:'subs'}) %>
+<div class="topbar">
+  <div>
+    <h1>Send Email Blast</h1>
+    <p class="muted" style="margin:0">Sending to <%= subCount %> subscribers</p>
+  </div>
+  <a class="btn btn-ghost" href="/admin/subscribers">Cancel</a>
+</div>
+
+<form class="card" method="post" action="/admin/subscribers/blast">
+  <div class="card-pad" style="border-bottom:1px solid var(--line)">
+    <div class="field">
+      <label>Subject</label>
+      <input type="text" class="input" name="subject" placeholder="Newsletter Subject" required>
+    </div>
+    <div class="field">
+      <label>Message</label>
+      <textarea class="input" name="message" rows="12" placeholder="Write your email content here. You can use HTML if you want." required style="font-family: inherit"></textarea>
+    </div>
+  </div>
+  <div class="card-pad" style="background:var(--cream);border-radius:0 0 12px 12px;display:flex;justify-content:space-between;align-items:center">
+    <p class="muted" style="font-size:13px;margin:0">
+      Emails will be sent in BCC so subscribers cannot see each other's addresses.
+    </p>
+    <button type="submit" class="btn btn-primary" onclick="this.innerText='Sending...';">Send to <%= subCount %> subscribers</button>
+  </div>
+</form>
+
+<%- include('admin/partials-bottom') %>

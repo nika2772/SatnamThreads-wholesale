@@ -1,0 +1,9 @@
+<%- include('partials/top') %>
+<div class="wrap">
+  <div class="breadcrumb"><a href="/">Home</a> › <span><%= pg.title %></span></div>
+  <div style="max-width:820px;margin:0 auto 60px">
+    <h1><%= pg.title %></h1>
+    <div class="card card-pad prose" style="margin-top:20px"><%- pg.body %></div>
+  </div>
+</div>
+<%- include('partials/bottom') %>

@@ -1,0 +1,31 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%= title %> · Satnam Threads Admin</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/css/admin.css?v=4">
+</head><body><div class="admin">
+<aside class="side">
+  <div class="brand"><img src="/static/img/brand/logo.jpg" alt="Satnam Threads" style="max-height: 32px; width: auto; object-fit: contain;"><span>Admin panel</span></div>
+  <h6>Overview</h6>
+  <a href="/admin" class="<%= nav==='dash'?'on':'' %>">Dashboard</a>
+  <h6>Sales</h6>
+  <a href="/admin/enquiries" class="<%= nav==='enq'?'on':'' %>">Enquiries <% if(newEnq){ %><span class="badge badge-warn"><%= newEnq %></span><% } %></a>
+  <a href="/admin/messages" class="<%= nav==='msg'?'on':'' %>">Messages <% if(unread){ %><span class="badge badge-warn"><%= unread %></span><% } %></a>
+  <h6>Catalogue</h6>
+  <a href="/admin/products" class="<%= nav==='prod'?'on':'' %>">Products</a>
+  <a href="/admin/categories" class="<%= nav==='cat'?'on':'' %>">Categories</a>
+
+  <h6>People</h6>
+  <a href="/admin/customers" class="<%= nav==='cust'?'on':'' %>">Customers <% if(pendingUsers){ %><span class="badge badge-warn"><%= pendingUsers %></span><% } %></a>
+  <a href="/admin/subscribers" class="<%= nav==='subs'?'on':'' %>">Subscribers</a>
+  <h6>Configuration</h6>
+  <a href="/admin/pages" class="<%= nav==='pages'?'on':'' %>">Pages</a>
+  <a href="/admin/settings" class="<%= nav==='set'?'on':'' %>">Settings</a>
+  <h6>&nbsp;</h6>
+  <a href="/" target="_blank">↗ View storefront</a>
+  <a href="/logout" onclick="event.preventDefault();document.getElementById('lo').submit()">Sign out</a>
+  <form id="lo" method="post" action="/logout" style="display:none"></form>
+</aside>
+<main class="main">
+<% for(const f of flash){ %><div class="notice notice-<%= f.type==='error'?'bad':(f.type==='warn'?'warn':'ok') %>"><%= f.msg %></div><% } %>

@@ -1,0 +1,45 @@
+<%- include('admin/partials-top',{title:'Products',nav:'prod'}) %>
+<div class="topbar"><div><h1>Products</h1>
+  <p class="muted" style="margin:0; font-size:13px;">
+    <b><%= (stats.independent || 0) + (stats.parents || 0) %></b> total products (<%= stats.independent || 0 %> independent, <%= stats.parents || 0 %> parent) &nbsp;&bull;&nbsp; <b><%= stats.total || 0 %></b> total items including variants (<%= stats.variants || 0 %> variants)
+  </p>
+</div>
+  <a class="btn" href="/admin/products/new">+ Add product</a></div>
+<form class="filters" method="get">
+  <input class="input" name="q" placeholder="Search name or SKU" value="<%= query.q||'' %>">
+  <select class="input" name="cat"><option value="">All categories</option>
+    <% for(const c of cats){ %><option value="<%= c.id %>" <%= String(query.cat)===String(c.id)?'selected':'' %>><%= c.parent_id?'— ':'' %><%= c.name %></option><% } %></select>
+  <select class="input" name="status"><option value="">Any status</option>
+    <option value="1" <%= query.status==='1'?'selected':'' %>>Active</option>
+    <option value="0" <%= query.status==='0'?'selected':'' %>>Hidden</option></select>
+  <button class="btn btn-sm" type="submit">Filter</button>
+  <a class="btn btn-sm btn-ghost" href="/admin/products">Reset</a>
+</form>
+<div class="tablewrap"><table class="table">
+  <thead><tr><th></th><th>Product</th><th>Category</th><th class="num">Slabs</th><th class="num">Stock</th><th>Status</th><th></th></tr></thead>
+  <tbody><% for(const p of products){ %><tr>
+    <td><img class="thumb" src="<%= firstImage(p) %>" alt=""></td>
+    <td>
+      <% if(p.parent_id) { %>
+        <span style="display:inline-block; margin-left: 12px; border-left: 2px solid var(--line); padding-left: 10px;">
+          ↳ <span class="badge" style="background:var(--cream); color:var(--muted);">Variant</span> <a href="/admin/products/<%= p.id %>"><b><%= p.name %></b></a>
+        </span>
+      <% } else { %>
+        <a href="/admin/products/<%= p.id %>"><b><%= p.name %></b></a>
+      <% } %>
+      <br><span class="muted" style="<%= p.parent_id ? 'margin-left:38px;' : '' %>"><%= p.sku %> · <%= p.pack_size||p.unit %></span>
+    </td>
+    <td><%= p.cat || '—' %></td>
+
+    <td class="num"><%= tiersOf(p).length || '—' %></td>
+    <td class="num"><span class="badge <%= p.stock<=0?'badge-bad':(p.stock<50?'badge-warn':'badge-ok') %>"><%= p.stock %></span></td>
+    <td><span class="badge <%= p.is_active?'badge-ok':'badge-muted' %>"><%= p.is_active?'Active':'Hidden' %></span></td>
+    <td style="white-space:nowrap"><a class="btn btn-sm btn-ghost" href="/admin/products/<%= p.id %>">Edit</a>
+      <a class="btn btn-sm btn-ghost" href="/p/<%= p.slug %>" target="_blank">View</a></td>
+  </tr><% } %>
+  <% if(!products.length){ %><tr><td colspan="8" class="empty">No products match that filter.</td></tr><% } %>
+  </tbody></table></div>
+<% if(pg.pages>1){ %><div class="pager">
+  <% for(let i=1;i<=pg.pages;i++){ %><% if(i===pg.page){ %><span class="on"><%= i %></span><% } else { %><a href="<%= pageUrl(i) %>"><%= i %></a><% } %><% } %>
+</div><% } %>
+<%- include('admin/partials-bottom') %>

@@ -1,0 +1,50 @@
+<%- include('partials/top') %>
+<section class="hero" style="padding:48px 0"><div class="wrap" style="grid-template-columns:1fr">
+  <div style="max-width:74ch">
+    <span class="kicker">Wholesale programme</span>
+    <h1>Slab pricing, quoted terms, and a person who answers.</h1>
+    <p>If you buy by the carton — garment exporter, manufacturer, salon chain or distributor — you should not be paying list price. An approved wholesale account unlocks quantity slab pricing across the entire catalogue and replaces checkout with a quote-first enquiry flow.</p>
+    <div class="hero-cta">
+      <a class="btn btn-gold btn-lg" href="/register?type=wholesale">Apply for an account</a>
+      <a class="btn btn-ghost btn-lg" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.34)" href="https://wa.me/<%= S.whatsapp %>">Ask a question first</a>
+    </div>
+  </div>
+</div></section>
+
+<section class="section"><div class="wrap">
+  <div class="grid g3">
+    <div class="card card-pad"><span class="badge badge-gold">01</span><h3 style="margin-top:12px">Apply in two minutes</h3><p class="muted">Business name, GSTIN, city and what you buy. That is the whole form. No documents to upload.</p></div>
+    <div class="card card-pad"><span class="badge badge-gold">02</span><h3 style="margin-top:12px">Approved in one business day</h3><p class="muted">We verify the GSTIN and activate slab pricing on your login. You will get a WhatsApp confirmation.</p></div>
+    <div class="card card-pad"><span class="badge badge-gold">03</span><h3 style="margin-top:12px">Enquire, we quote, you decide</h3><p class="muted">Build an enquiry list at the quantities you actually need. We quote the whole basket, freight included, within one business day.</p></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:34px;gap:24px;align-items:start">
+    <div class="card card-pad">
+      <h2>What an account gets you</h2>
+      <table class="table" style="border:0">
+        <tr><td><b>Slab pricing</b><br><span class="muted">Deepening with volume</span></td><td class="num">✓</td></tr>
+        <tr><td><b>Enquiry list &amp; formal quotations</b><br><span class="muted">Available for your specific requirements</span></td><td class="num">✓</td></tr>
+        <tr><td><b>GST invoices with your GSTIN</b><br><span class="muted">Raised automatically against your account</span></td><td class="num">✓</td></tr>
+      </table>
+    </div>
+    <div class="card card-pad">
+      <h2>Common questions</h2>
+      <h4>Is there a minimum order?</h4>
+      <p class="muted">No account minimum. Individual products carry a minimum order quantity, shown on each product page — usually one pack or one box.</p>
+      <h4>Can I get a sample first?</h4>
+      <p class="muted">Yes, on most stock items. Ask on WhatsApp — sample charges are adjusted against your first order.</p>
+      <h4>How is freight charged?</h4>
+      <p class="muted">At actuals for heavy consignments, and we always tell you the number before booking.</p>
+    </div>
+  </div>
+
+  <div class="card card-pad center" style="margin-top:30px;background:var(--gold-soft);border-color:#F0DFBE">
+    <h2>Ready when you are</h2>
+    <p class="lead" style="max-width:60ch;margin:0 auto 18px">Apply online, or just message us — we can set the account up from a WhatsApp conversation if that is easier.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-lg" href="/register?type=wholesale">Apply for a wholesale account</a>
+      <a class="btn btn-lg btn-ghost" href="https://wa.me/<%= S.whatsapp %>">WhatsApp <%= S.phone %></a>
+    </div>
+  </div>
+</div></section>
+<%- include('partials/bottom') %>

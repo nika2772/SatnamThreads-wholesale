@@ -1,0 +1,96 @@
+<%- include('partials/top') %>
+<div class="wrap">
+  <div class="breadcrumb"><a href="/">Home</a> › <% if(cat){ %><% if(cat.parent){ %><a href="/c/<%= cat.parent.slug %>"><%= cat.parent.name %></a> › <% } %><span><%= cat.name %></span><% } else { %><span><%= query.q ? 'Search results' : 'All products' %></span><% } %></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:18px">
+    <div>
+      <h1 style="margin-bottom:6px"><%= heading %></h1>
+      <p class="muted" style="margin:0"><%= subheading %></p>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="display:none" id="filterToggle" onclick="document.querySelector('.filters').classList.toggle('open')">Filters</button>
+  </div>
+
+  <div class="shop">
+    <aside class="filters card card-pad">
+      <form id="filterForm" method="get" action="<%= cat ? '/c/'+cat.slug : '/products' %>">
+        <% if(query.q){ %><input type="hidden" name="q" value="<%= query.q %>"><% } %>
+        <div class="fgroup">
+          <h5>Categories</h5>
+          <ul>
+            <li><a href="/products<%= query.q?'?q='+encodeURIComponent(query.q):'' %>" class="<%= !cat?'on':'' %>">All products <span class="muted"><%= totalAll %></span></a></li>
+            <% for(const g of tree){ %>
+              <li><a href="/c/<%= g.slug %>" class="<%= cat && cat.id===g.id?'on':'' %>" style="font-weight:600;margin-top:6px"><%= g.name %> <span class="muted"><%= g.n %></span></a></li>
+              <% for(const c of g.children){ %>
+                <li><a href="/c/<%= c.slug %>" class="<%= cat && cat.id===c.id?'on':'' %>" style="padding-left:12px">— <%= c.name %> <span class="muted"><%= c.n %></span></a></li>
+              <% } %>
+            <% } %>
+          </ul>
+        </div>
+
+        <div class="fgroup">
+          <h5>Availability</h5>
+          <label><input type="checkbox" name="instock" value="1" <%= query.instock?'checked':'' %>> In stock now</label>
+
+          <label><input type="checkbox" name="new" value="1" <%= query.new?'checked':'' %>> New arrivals</label>
+        </div>
+        <div class="fgroup">
+          <h5>Pack weight</h5>
+          <% for(const w of [['0-250','Up to 250 g'],['250-600','250 g – 600 g'],['600-1000','600 g – 1 kg'],['1000-99999','Over 1 kg']]){ %>
+            <label><input type="radio" name="wt" value="<%= w[0] %>" <%= query.wt===w[0]?'checked':'' %>> <%= w[1] %></label>
+          <% } %>
+        </div>
+        <div style="display:flex;gap:8px;padding-top:16px">
+          <button class="btn btn-block btn-sm" type="submit">Apply filters</button>
+          <a class="btn btn-ghost btn-sm" href="<%= cat ? '/c/'+cat.slug : '/products' %>">Clear</a>
+        </div>
+      </form>
+    </aside>
+
+    <div id="results-container">
+      <div class="toolbar">
+        <span><b><%= pg.total %></b> product<%= pg.total===1?'':'s' %><%= query.q ? ' matching “'+query.q+'”' : '' %></span>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <label class="muted" style="font-size:13px">Sort
+            <select class="input" style="width:auto;display:inline-block;padding:6px 10px" onchange="location.href=updateQuery('sort',this.value)">
+              <% for(const s of [['relevance','Most relevant'],['popular','Best selling'],['newest','Newest first'],['name_asc','Name: A–Z']]){ %>
+                <option value="<%= s[0] %>" <%= (query.sort||'relevance')===s[0]?'selected':'' %>><%= s[1] %></option>
+              <% } %>
+            </select>
+          </label>
+          <label class="muted" style="font-size:13px">Show
+            <select class="input" style="width:auto;display:inline-block;padding:6px 10px" onchange="location.href=updateQuery('per',this.value)">
+              <% for(const n of [12,24,48]){ %><option value="<%= n %>" <%= pg.per===n?'selected':'' %>><%= n %></option><% } %>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <% if(!products.length){ %>
+        <div class="card empty">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4" stroke-linecap="round"/></svg>
+          <h3>Nothing matched that</h3>
+          <p>Try a broader search, or clear the filters. If you know the product but cannot find it here, WhatsApp us — we stock more than we list.</p>
+          <a class="btn" href="https://wa.me/<%= S.whatsapp %>">Ask us on WhatsApp</a>
+        </div>
+      <% } else { %>
+        <div class="grid g3"><% for(const p of products){ %><%- include('partials/pcard',{p}) %><% } %></div>
+        <% if(pg.pages>1){ %>
+        <div class="pager">
+          <% if(pg.hasPrev){ %><a href="<%= pageUrl(pg.page-1) %>">‹ Prev</a><% } %>
+          <% for(let i=1;i<=pg.pages;i++){ if(i===1||i===pg.pages||Math.abs(i-pg.page)<=2){ %>
+            <% if(i===pg.page){ %><span class="on"><%= i %></span><% } else { %><a href="<%= pageUrl(i) %>"><%= i %></a><% } %>
+          <% } else if(Math.abs(i-pg.page)===3){ %><span style="border:0;background:none">…</span><% } } %>
+          <% if(pg.hasNext){ %><a href="<%= pageUrl(pg.page+1) %>">Next ›</a><% } %>
+        </div><% } %>
+      <% } %>
+
+      <% if(cat && cat.description){ %>
+        <div class="card card-pad" style="margin-top:30px">
+          <h2 style="font-size:20px">About <%= cat.name %></h2>
+          <p class="muted" style="margin:0"><%= cat.description %></p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/bottom') %>

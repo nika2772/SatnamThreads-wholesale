@@ -1,0 +1,153 @@
+<%- include('admin/partials-top',{title:p.id?'Edit product':'New product',nav:'prod'}) %>
+<div class="topbar"><div><h1><%= p.id ? 'Edit product' : 'New product' %></h1>
+  <p class="muted" style="margin:0"><%= p.id ? p.sku + ' · created ' + fmtDate(p.created_at) : 'Add an item to the catalogue' %></p></div>
+  <div style="display:flex;gap:8px"><a class="btn btn-ghost" href="/admin/products">← Back</a>
+  <% if(p.id){ %><a class="btn btn-ghost" href="/p/<%= p.slug %>" target="_blank">View on site</a><% } %></div></div>
+
+<form method="post" action="<%= p.id ? '/admin/products/'+p.id : '/admin/products/new' %>" enctype="multipart/form-data">
+<div class="grid" style="grid-template-columns:1fr 320px;align-items:start">
+  <div>
+    <div class="card card-pad">
+      <h2>Basics</h2>
+      <div class="field"><label>Product name *</label><input class="input" name="name" required value="<%= p.name||'' %>" data-autoslug="#slug"></div>
+      <div class="row">
+        <div class="field"><label>URL slug *</label><input class="input" id="slug" name="slug" required value="<%= p.slug||'' %>">
+          <div class="hint">Appears as /p/your-slug</div></div>
+        <div class="field"><label>SKU</label><input class="input" name="sku" value="<%= p.sku||'' %>"></div>
+      </div>
+      <div class="field"><label>Short description</label><input class="input" name="short_desc" value="<%= p.short_desc||'' %>" maxlength="200">
+        <div class="hint">One line shown under the product title. Lead with the benefit.</div></div>
+      <div class="field"><label>Full description</label>
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+        <div id="editor-container" style="min-height:200px; background: #fff; font-family: inherit;"><%- p.description||'' %></div>
+        <input type="hidden" name="description" id="hidden_desc">
+        <div class="hint">Explain what it is, who it's for, and why yours is better. Use the toolbar for formatting.</div></div>
+    </div>
+
+
+
+    <div class="card card-pad" style="margin-top:16px">
+      <h2>Stock &amp; packing</h2>
+      <div class="row3">
+        <div class="field"><label>Stock quantity</label><input class="input" type="number" name="stock" value="<%= p.stock||0 %>"></div>
+        <div class="field"><label>Minimum order qty</label><input class="input" type="number" name="moq" value="<%= p.moq||1 %>" min="1"></div>
+        <div class="field"><label>Unit</label><input class="input" name="unit" value="<%= p.unit||'pack' %>" placeholder="pack / box / roll / piece"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Pack size</label><input class="input" name="pack_size" value="<%= p.pack_size||'' %>" placeholder="e.g. 1,000 pcs"></div>
+        <div class="field"><label>Weight (grams)</label><input class="input" type="number" name="weight_g" value="<%= p.weight_g||0 %>"></div>
+        <div class="field"><label>HSN code</label><input class="input" name="hsn" value="<%= p.hsn||'' %>"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card card-pad">
+      <h2>Publish</h2>
+      <div class="field"><label>Category</label>
+        <select class="input" name="category_id">
+          <option value="">— none —</option>
+          <% for(const c of cats){ %><option value="<%= c.id %>" <%= String(p.category_id)===String(c.id)?'selected':'' %>><%= c.parent_id?'— ':'' %><%= c.name %></option><% } %>
+        </select></div>
+      <div class="field"><label>Parent Product (Variant Of)</label>
+        <select class="input" name="parent_id" id="parent_id_select" onchange="updateVariantFields()">
+          <option value="">— none (standalone product) —</option>
+          <% for(const pt of parents){ %><option value="<%= pt.id %>" <%= String(p.parent_id)===String(pt.id)?'selected':'' %>><%= pt.name %> (<%= pt.sku %>)</option><% } %>
+        </select>
+        <div class="hint">Assigning a parent makes this product a variant.</div>
+      </div>
+      
+      <% const currentOpts = p.opts ? (typeof p.opts === 'string' ? JSON.parse(p.opts) : p.opts) : {}; %>
+      <div id="variant-options-section" style="margin-bottom:16px; padding:12px; background:var(--bg); border-radius:6px; border:1px solid var(--line)">
+      </div>
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:9px"><input type="checkbox" name="is_active" value="1" <%= p.id? (p.is_active?'checked':'') : 'checked' %>> Visible on storefront</label>
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:9px"><input type="checkbox" name="is_featured" value="1" <%= p.is_featured?'checked':'' %>> Show in best sellers</label>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="is_new" value="1" <%= p.is_new?'checked':'' %>> Flag as new arrival</label>
+      <hr style="border:0;border-top:1px solid var(--line-2);margin:16px 0">
+      <button class="btn btn-block" type="submit"><%= p.id ? 'Save changes' : 'Create product' %></button>
+      <% if(p.id){ %>
+        <a class="btn btn-block btn-danger" style="margin-top:8px" href="/admin/products/<%= p.id %>/delete"
+           onclick="confirmDel(event,'Delete “<%= String(p.name).replace(/'/g,"") %>” permanently?')">Delete product</a>
+      <% } %>
+    </div>
+
+    <div class="card card-pad" style="margin-top:16px">
+      <h2>Images</h2>
+      <% if(images.length){ %>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <% images.forEach((im,i)=>{ %>
+          <div style="position:relative">
+            <img src="<%= im %>" style="width:74px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">
+            <label style="display:flex;gap:4px;font-size:11px;margin-top:3px"><input type="checkbox" name="remove_img[]" value="<%= im %>"> remove</label>
+          </div>
+        <% }) %>
+      </div><% } %>
+      <div class="field"><label>Upload images</label><input class="input" type="file" name="image" accept="image/*" multiple>
+        <div class="hint">JPG, PNG, WEBP or SVG. Square images look best. Max 8 MB each.</div></div>
+      <div class="field"><label>Or paste an image URL</label><input class="input" name="image_url" placeholder="https://…"></div>
+    </div>
+  </div>
+</div>
+</div>
+</form>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+  var quill = new Quill('#editor-container', {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['clean']
+      ]
+    }
+  });
+  document.querySelector('form').addEventListener('submit', function() {
+    var html = quill.root.innerHTML;
+    if (html === '<p><br></p>' || html === '<p></p>') html = '';
+    document.getElementById('hidden_desc').value = html;
+  });
+
+  const parentsData = <%- JSON.stringify(parents.map(pt => ({ id: pt.id, opts: pt.opts ? (typeof pt.opts === 'string' ? JSON.parse(pt.opts) : pt.opts) : {} }))) %>;
+  const currentValues = <%- JSON.stringify(currentOpts.values || {}) %>;
+  const currentDimensions = <%- JSON.stringify(currentOpts.dimensions || []) %>;
+  
+  function updateVariantFields() {
+    const parentId = document.getElementById('parent_id_select').value;
+    const container = document.getElementById('variant-options-section');
+    
+    if (!parentId) {
+      container.innerHTML = `
+        <label style="font-weight:600;display:block;margin-bottom:6px;font-size:13px">Variant Dimensions</label>
+        <input class="input" name="opt_dimensions" placeholder="e.g. Size, Color, Length" value="${currentDimensions.join(', ')}">
+        <div class="hint" style="margin-top:4px;font-size:12px;line-height:1.4">If this product has variants, specify the dimensions (comma separated).</div>
+      `;
+    } else {
+      const parent = parentsData.find(pt => pt.id == parentId);
+      const dims = parent && parent.opts && parent.opts.dimensions ? parent.opts.dimensions : [];
+      if (dims.length === 0) {
+        container.innerHTML = `<div class="hint" style="font-size:12px">The selected parent product does not have any Variant Dimensions configured.</div>`;
+      } else {
+        let html = `<label style="font-weight:600;display:block;margin-bottom:8px;font-size:13px">Variant Values</label>`;
+        for (const dim of dims) {
+          const val = currentValues[dim] || '';
+          html += `
+            <div style="margin-bottom:8px">
+              <label style="display:block;font-size:12px;color:var(--text-2);margin-bottom:2px">${dim}</label>
+              <input class="input" name="opt_val_${dim}" value="${val.replace(/"/g, '&quot;')}">
+            </div>
+          `;
+        }
+        container.innerHTML = html;
+      }
+    }
+  }
+  updateVariantFields();
+
+  document.querySelectorAll('input[type="number"]').forEach(el => {
+    el.addEventListener('focus', function() { this.select(); });
+  });
+</script>
+
+<%- include('admin/partials-bottom') %>

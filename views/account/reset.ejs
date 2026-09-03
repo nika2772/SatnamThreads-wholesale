@@ -1,0 +1,14 @@
+<%- include('partials/top') %>
+<div class="wrap"><div class="auth-wrap">
+  <div class="card card-pad">
+    <h1 style="font-size:26px">Set new password</h1>
+    <p class="muted">Enter your new password below.</p>
+    <form method="post" action="/reset">
+      <input type="hidden" name="token" value="<%= query.token %>">
+      <div class="field"><label>New Password</label><input class="input" type="password" name="password" required autofocus></div>
+      <div class="field"><label>Confirm New Password</label><input class="input" type="password" name="password_confirm" required></div>
+      <button class="btn btn-lg btn-block" type="submit">Update Password</button>
+    </form>
+  </div>
+</div></div>
+<%- include('partials/bottom') %>

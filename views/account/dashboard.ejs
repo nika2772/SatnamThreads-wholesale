@@ -1,0 +1,66 @@
+<%- include('partials/top') %>
+<div class="wrap" style="padding-bottom:60px">
+  <div class="breadcrumb"><a href="/">Home</a> › <span>My account</span></div>
+  <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center">
+    <div><h1 style="margin-bottom:4px">Hello, <%= user.name.split(' ')[0] %></h1>
+      <p class="muted" style="margin:0"><%= user.email %> · <%= user.company || 'Individual account' %></p></div>
+    <form method="post" action="/logout"><button class="btn btn-ghost" type="submit">Sign out</button></form>
+  </div>
+
+  <div class="grid g4" style="margin:24px 0">
+    <div class="card card-pad"><span class="muted" style="font-size:12.5px">Account type</span>
+      <h3 style="margin:6px 0 0;text-transform:capitalize"><%= user.account_type %></h3>
+      <% if(user.account_type==='wholesale'){ %>
+        <% if(user.status === 'blocked'){ %>
+          <span class="badge badge-sale" style="margin-top:8px">Blocked</span>
+          <p style="margin-top:8px;font-size:13px;line-height:1.4">Your account has been blocked.<br>Please contact us.</p>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <a href="https://wa.me/918459455595" class="btn btn-sm btn-gold">WhatsApp</a>
+            <a href="tel:+918459455595" class="btn btn-sm btn-ghost">Call</a>
+          </div>
+        <% } else { %>
+          <span class="badge <%= user.status==='active'?'badge-new':'badge-warn' %>" style="margin-top:8px"><%= user.status==='active'?'Approved — slab pricing on':'Pending approval' %></span>
+        <% } %>
+      <% } else { %><a class="btn-link" href="/wholesale">Upgrade to wholesale →</a><% } %>
+    </div>
+
+    <div class="card card-pad"><span class="muted" style="font-size:12.5px">Enquiries</span><h3 style="margin:6px 0 0"><%= enquiries.length %></h3><a class="btn-link" href="#enquiries">View all →</a></div>
+    <div class="card card-pad"><span class="muted" style="font-size:12.5px">Saved products</span><h3 style="margin:6px 0 0"><%= counts.wish %></h3><a class="btn-link" href="/wishlist">View wishlist →</a></div>
+  </div>
+
+
+
+  <div class="card card-pad" style="margin-top:20px" id="enquiries">
+    <h2>Your enquiries</h2>
+    <% if(!enquiries.length){ %><p class="muted">No enquiries yet. <a href="/enquiry">Build an enquiry list</a> to get a bulk quote.</p><% } else { %>
+    <div class="tablewrap"><table class="table">
+      <thead><tr><th>Enquiry</th><th>Date</th><th>Items</th><th>Status</th><th class="num">Quoted</th></tr></thead>
+      <tbody><% for(const e of enquiries){ %>
+        <tr><td><b><%= e.enquiry_no %></b></td><td><%= fmtDate(e.created_at) %></td><td><%= e.n %></td>
+          <td><span class="badge <%= e.status==='quoted'?'badge-new':(e.status==='won'?'badge-gold':'badge-warn') %>"><%= e.status %></span></td>
+          <td class="num"><%= e.quoted_total ? money(e.quoted_total) : '—' %></td></tr>
+        <% if(e.quote_notes){ %><tr><td colspan="5" style="background:var(--gold-soft);font-size:13.5px"><b>Our quote:</b> <%= e.quote_notes %></td></tr><% } %>
+      <% } %></tbody>
+    </table></div><% } %>
+  </div>
+
+  <div class="card card-pad" style="margin-top:20px">
+    <h2>Your details</h2>
+    <form method="post" action="/account">
+      <div class="row">
+        <div class="field"><label>Name</label><input class="input" name="name" value="<%= user.name %>" required></div>
+        <div class="field"><label>Phone</label><input class="input" name="phone" value="<%= user.phone %>"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Business name</label><input class="input" name="company" value="<%= user.company %>"></div>
+        <div class="field"><label>GSTIN</label><input class="input" name="gstin" value="<%= user.gstin %>"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>City</label><input class="input" name="city" value="<%= user.city %>"></div>
+        <div class="field"><label>New password <span class="muted">— leave blank to keep current</span></label><input class="input" type="password" name="password" minlength="8"></div>
+      </div>
+      <button class="btn" type="submit">Save changes</button>
+    </form>
+  </div>
+</div>
+<%- include('partials/bottom') %>

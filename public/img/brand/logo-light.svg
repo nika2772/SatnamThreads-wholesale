@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 56" width="260" height="56">
+<g color="#E0A94A" transform="translate(2 -72) scale(.62)"><g stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round">
+    <rect x="62" y="46" width="76" height="12" rx="4" fill="currentColor" opacity=".9"/>
+    <rect x="62" y="142" width="76" height="12" rx="4" fill="currentColor" opacity=".9"/>
+    <path d="M78 58v84M122 58v84"/>
+    <path d="M78 72h44M78 88h44M78 104h44M78 120h44" opacity=".55"/>
+    <path d="M122 80c16 4 24 12 24 22s-8 18-24 22" opacity=".7"/></g></g>
+<text x="72" y="27" font-family="Georgia,'Times New Roman',serif" font-size="25" font-weight="700" fill="#FFFFFF" letter-spacing=".2">Satnam Threads</text>
+<text x="73" y="44" font-family="ui-sans-serif,-apple-system,Segoe UI,Roboto,Arial,sans-serif" font-size="10.5" fill="#A9B6CE" letter-spacing="1.7">GARMENT ACCESSORIES · SINCE 1993</text></svg>

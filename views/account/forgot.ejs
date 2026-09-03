@@ -1,0 +1,13 @@
+<%- include('partials/top') %>
+<div class="wrap"><div class="auth-wrap">
+  <div class="card card-pad">
+    <h1 style="font-size:26px">Reset password</h1>
+    <p class="muted">Enter your email address and we'll send you a link to reset your password.</p>
+    <form method="post" action="/forgot">
+      <div class="field"><label>Email address</label><input class="input" type="email" name="email" required autofocus></div>
+      <button class="btn btn-lg btn-block" type="submit">Send Reset Link</button>
+    </form>
+    <p class="center" style="margin:18px 0 0"><a href="/login"><b>Back to sign in</b></a></p>
+  </div>
+</div></div>
+<%- include('partials/bottom') %>

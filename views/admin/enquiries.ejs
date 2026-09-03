@@ -1,0 +1,24 @@
+<%- include('admin/partials-top',{title:'Enquiries',nav:'enq'}) %>
+<div class="topbar"><div><h1>Enquiries</h1><p class="muted" style="margin:0"><%= pg.total %> received · <%= newCount %> awaiting a quote</p></div></div>
+<form class="filters" method="get">
+  <input class="input" name="q" placeholder="Enquiry no, name, company or phone" value="<%= query.q||'' %>">
+  <select class="input" name="status"><option value="">Any status</option>
+    <% for(const s of ['new','quoted','won','lost']){ %><option value="<%= s %>" <%= query.status===s?'selected':'' %>><%= s %></option><% } %></select>
+  <button class="btn btn-sm" type="submit">Filter</button><a class="btn btn-sm btn-ghost" href="/admin/enquiries">Reset</a>
+</form>
+<div class="tablewrap"><table class="table">
+  <thead><tr><th>Enquiry</th><th>From</th><th>Contact</th><th class="num">Items</th><th class="num">Indicative</th><th>Status</th><th></th></tr></thead>
+  <tbody><% for(const e of enquiries){ %><tr>
+    <td><a href="/admin/enquiries/<%= e.id %>"><b><%= e.enquiry_no %></b></a><br><span class="muted"><%= timeAgo(e.created_at) %></span></td>
+    <td><%= e.name %><br><span class="muted"><%= e.company || e.city %></span></td>
+    <td><a href="https://wa.me/91<%= String(e.phone).replace(/\D/g,'').slice(-10) %>"><%= e.phone %></a><br><span class="muted"><%= e.email %></span></td>
+    <td class="num"><%= e.n %></td>
+    <td class="num"><%= money(e.indicative||0) %></td>
+    <td><span class="badge <%= e.status==='new'?'badge-warn':(e.status==='won'?'badge-ok':(e.status==='lost'?'badge-bad':'badge')) %>"><%= e.status %></span></td>
+    <td><a class="btn btn-sm <%= e.status==='new'?'':'btn-ghost' %>" href="/admin/enquiries/<%= e.id %>"><%= e.status==='new'?'Quote':'Open' %></a></td>
+  </tr><% } %>
+  <% if(!enquiries.length){ %><tr><td colspan="7" class="empty">No enquiries match that filter.</td></tr><% } %>
+  </tbody></table></div>
+<% if(pg.pages>1){ %><div class="pager"><% for(let i=1;i<=pg.pages;i++){ %>
+  <% if(i===pg.page){ %><span class="on"><%= i %></span><% } else { %><a href="<%= pageUrl(i) %>"><%= i %></a><% } %><% } %></div><% } %>
+<%- include('admin/partials-bottom') %>
