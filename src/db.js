@@ -19,7 +19,7 @@ function open() {
       if (file !== preferred && fs.existsSync(preferred)) {
         const pStat = fs.statSync(preferred);
         const fStat = fs.existsSync(file) ? fs.statSync(file) : null;
-        if (!fStat || pStat.mtimeMs > fStat.mtimeMs) {
+        if (!fStat || pStat.mtimeMs > fStat.mtimeMs || pStat.size !== fStat.size) {
           fs.copyFileSync(preferred, file);
           if (fs.existsSync(preferred + '-wal')) fs.copyFileSync(preferred + '-wal', file + '-wal');
           if (fs.existsSync(preferred + '-shm')) fs.copyFileSync(preferred + '-shm', file + '-shm');
