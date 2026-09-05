@@ -118,7 +118,7 @@ module.exports = function (r) {
           auth: { user: testAccount.user, pass: testAccount.pass },
         });
         const info = await transporter.sendMail({
-          from: '"Satnam Threads" <noreply@satnamthread.com>',
+          from: '"Satnam Threads" <noreply@satnamthreads.com>',
           to: email,
           subject: "Password Reset Request",
           text: `Hi ${u.name.split(' ')[0]},\n\nYou requested a password reset. Click the link below to set a new password:\n\n${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you did not request this, please ignore this email.`,

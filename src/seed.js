@@ -179,7 +179,7 @@ const PAGES = [
 <h2>What we do not do</h2><p>We do not sell your data. We do not share it with advertisers. We do not send marketing messages to anyone who has not asked for them.</p>
 <h2>Payments</h2><p>Card and UPI details are handled entirely by our payment gateway. They never reach our servers and we never store them.</p>
 <h2>Cookies</h2><p>We use one essential cookie to keep your cart and login session working. That is it. No advertising or cross-site tracking cookies are set by us.</p>
-<h2>Your rights</h2><p>Email <strong>sales@satnamthread.com</strong> to see, correct or delete the data we hold about you. We will respond within seven working days. Note that GST law requires us to retain invoice records for eight years, so transaction records cannot be deleted on request.</p>`]
+<h2>Your rights</h2><p>Email <strong>sales@satnamthreads.com</strong> to see, correct or delete the data we hold about you. We will respond within seven working days. Note that GST law requires us to retain invoice records for eight years, so transaction records cannot be deleted on request.</p>`]
 ];
 
 function run() {
@@ -213,7 +213,7 @@ function run() {
   PAGES.forEach(([s, t, b]) => insPage.run(s, t, b));
 
   db.prepare('INSERT INTO users(name,email,phone,password_hash,role,account_type,company,status) VALUES(?,?,?,?,?,?,?,?)')
-    .run('Store Administrator', 'admin@satnamthread.com', '8459455595',
+    .run('Store Administrator', 'admin@satnamthreads.com', '8459455595',
       hashPassword(process.env.ADMIN_PASSWORD || 'satnam@2026'), 'admin', 'wholesale', 'Satnam Threads', 'active');
 
   db.prepare('INSERT INTO users(name,email,phone,password_hash,role,account_type,company,gstin,city,status) VALUES(?,?,?,?,?,?,?,?,?,?)')
@@ -226,7 +226,7 @@ function run() {
     tagline: 'Garment accessories, wholesale since 1993',
     phone: '+91 84594 55595',
     whatsapp: '918459455595',
-    email: 'sales@satnamthread.com',
+    email: 'sales@satnamthreads.com',
     address: 'Janakpuri, New Delhi 110058, India',
     hours: 'Mon – Sat, 10:00 AM – 6:00 PM',
     gstin: '07AAAFG0000A1Z5',
@@ -242,7 +242,7 @@ function run() {
   for (const [k, v] of Object.entries(S)) setting.set(k, v);
 
   console.log(`Seeded ${CATS.length} categories, ${PRODUCTS.length} products, ${PAGES.length} pages.`);
-  console.log('Admin login: admin@satnamthread.com / ' + (process.env.ADMIN_PASSWORD || 'satnam@2026'));
+  console.log('Admin login: admin@satnamthreads.com / ' + (process.env.ADMIN_PASSWORD || 'satnam@2026'));
 }
 
 if (require.main === module) run();

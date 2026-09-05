@@ -109,7 +109,7 @@ server.listen(PORT, () => {
   console.log(`  │  Admin panel  http://localhost:${PORT}/admin    │`);
   console.log('  └──────────────────────────────────────────────┘');
   console.log('');
-  console.log('  Admin login:  admin@satnamthread.com / satnam@2026');
+  console.log('  Admin login:  admin@satnamthreads.com / satnam@2026');
   console.log('  Press Ctrl+C to stop.');
   console.log('');
 });

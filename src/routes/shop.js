@@ -6,11 +6,6 @@ const ST = require('../store');
 module.exports = function (r) {
 
   /* ---------------- home ---------------- */
-  r.get('/debug-db', async (req, res) => {
-    const count = db.prepare('SELECT count(*) as c FROM products').get().c;
-    res.send(`DB Products: ${count} | DB Path: ${process.env.DB_FILE || 'default or fallback'}`);
-  });
-
   r.get('/', (req, res) => {
     const tree = res.locals.tree;
     const topCats = [];
