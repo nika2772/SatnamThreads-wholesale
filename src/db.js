@@ -16,6 +16,9 @@ function open() {
   for (const file of attempts) {
     try {
       fs.mkdirSync(path.dirname(file), { recursive: true });
+      if (file !== preferred && !fs.existsSync(file) && fs.existsSync(preferred)) {
+        fs.copyFileSync(preferred, file);
+      }
       const d = new DatabaseSync(file);
       d.exec('CREATE TABLE IF NOT EXISTS __probe(x INTEGER)');
       d.exec('DROP TABLE __probe');
