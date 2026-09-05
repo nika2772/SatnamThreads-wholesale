@@ -16,10 +16,14 @@ function open() {
   for (const file of attempts) {
     try {
       fs.mkdirSync(path.dirname(file), { recursive: true });
-      if (file !== preferred && !fs.existsSync(file) && fs.existsSync(preferred)) {
-        fs.copyFileSync(preferred, file);
-        if (fs.existsSync(preferred + '-wal')) fs.copyFileSync(preferred + '-wal', file + '-wal');
-        if (fs.existsSync(preferred + '-shm')) fs.copyFileSync(preferred + '-shm', file + '-shm');
+      if (file !== preferred && fs.existsSync(preferred)) {
+        const pStat = fs.statSync(preferred);
+        const fStat = fs.existsSync(file) ? fs.statSync(file) : null;
+        if (!fStat || pStat.mtimeMs > fStat.mtimeMs) {
+          fs.copyFileSync(preferred, file);
+          if (fs.existsSync(preferred + '-wal')) fs.copyFileSync(preferred + '-wal', file + '-wal');
+          if (fs.existsSync(preferred + '-shm')) fs.copyFileSync(preferred + '-shm', file + '-shm');
+        }
       }
       const d = new DatabaseSync(file);
       d.exec('CREATE TABLE IF NOT EXISTS __probe(x INTEGER)');
