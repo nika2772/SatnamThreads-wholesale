@@ -85,6 +85,28 @@ module.exports = function (r) {
   });
 
   /* ---------------- product ---------------- */
+  r.get('/debug-db', async (req, res) => {
+    const count = db.prepare('SELECT count(*) as c FROM products').get().c;
+    res.send(`DB Products: ${count} | DB Path: ${process.env.DB_FILE || 'default or fallback'}`);
+  });
+
+  r.get('/force-import', (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+    const os = require('os');
+    const preferred = process.env.DB_FILE || path.join(__dirname, '..', 'data', 'satnam.db');
+    const fallback = path.join(os.tmpdir(), 'satnam-threads', 'satnam.db');
+    try {
+      if (fs.existsSync(preferred)) {
+        fs.copyFileSync(preferred, fallback);
+        res.send('Database forcefully imported from Git! Go back to the homepage.');
+      } else {
+        res.send('Git database not found!');
+      }
+    } catch(e) {
+      res.send('Error: ' + e.message);
+    }
+  });
   r.get('/p/:slug', (req, res) => {
     const p = db.prepare('SELECT * FROM products WHERE slug=? AND is_active=1').get(req.params.slug);
     if (!p) return res.status(404).render('shop/404', { title: 'Not found' });
