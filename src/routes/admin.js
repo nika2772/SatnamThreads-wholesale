@@ -463,7 +463,7 @@ module.exports = function (r) {
       }
 
       const info = await transporter.sendMail({
-        from: '"Satnam Threads" <noreply@satnamthreads.com>',
+        from: '"Satnam Threads" <noreply@satnamthread.com>',
         bcc: bccList,
         subject: subject,
         html: message,
