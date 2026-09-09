@@ -9,7 +9,8 @@
     "seed": "node --no-warnings src/seed.js && node --no-warnings src/gen-images.js",
     "reset": "node -e \"require('fs').rmSync('data',{recursive:true,force:true})\" && npm run seed",
     "images": "node --no-warnings src/gen-images.js",
-    "preview": "node --no-warnings src/export-preview.js"
+    "preview": "node --no-warnings src/export-preview.js",
+    "reset-admin": "node reset-password.js"
   },
   "dependencies": {
     "nodemailer": "^9.0.3"
