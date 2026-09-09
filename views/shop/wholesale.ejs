@@ -1,4 +1,7 @@
 <%- include('partials/top') %>
+<% if (S.wholesale_content) { %>
+  <%- S.wholesale_content %>
+<% } else { %>
 <section class="hero" style="padding:48px 0"><div class="wrap" style="grid-template-columns:1fr">
   <div style="max-width:74ch">
     <span class="kicker">Wholesale programme</span>
@@ -47,4 +50,5 @@
     </div>
   </div>
 </div></section>
+<% } %>
 <%- include('partials/bottom') %>

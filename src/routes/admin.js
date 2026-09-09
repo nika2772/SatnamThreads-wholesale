@@ -210,6 +210,39 @@ module.exports = function (r) {
       description=@description,mrp=@mrp,price=@price,tiers=@tiers,moq=@moq,unit=@unit,pack_size=@pack_size,
       weight_g=@weight_g,stock=@stock,images=@images,hsn=@hsn,gst_rate=@gst_rate,is_active=@is_active,
       is_featured=@is_featured,is_new=@is_new,opts=@opts,meta_title=@meta_title,meta_desc=@meta_desc,rating=@rating,review_count=@review_count WHERE id=@id`).run(d);
+
+    if (req.body.bulk_variants && !d.parent_id) {
+      const lines = req.body.bulk_variants.split('\n').map(l => l.trim()).filter(Boolean);
+      const dims = d.opts ? JSON.parse(d.opts).dimensions || [] : [];
+      for (const line of lines) {
+        const parts = line.split('|').map(p => p.trim());
+        if (parts.length >= 2) {
+          const sku = parts[0] || ('ST-' + Date.now().toString(36).toUpperCase().slice(-6));
+          const valStrs = parts[1].split(',').map(v => v.trim());
+          const price = parts[2] ? Number(parts[2]) : d.price;
+          const stock = parts[3] ? Number(parts[3]) : 0;
+          
+          let valObj = {};
+          dims.forEach((dim, i) => { valObj[dim] = valStrs[i] || ''; });
+          
+          const childOpts = JSON.stringify({ values: valObj });
+          const cName = `${d.name} - ${valStrs.join(', ')}`;
+          let cSlug = H.slugify(cName);
+          const existChild = db.prepare('SELECT id FROM products WHERE sku=?').get(sku);
+          if (existChild) {
+            db.prepare('UPDATE products SET name=?, opts=?, price=?, stock=? WHERE id=?').run(cName, childOpts, price, stock, existChild.id);
+          } else {
+            if (db.prepare('SELECT id FROM products WHERE slug=?').get(cSlug)) cSlug += '-' + Date.now().toString(36).slice(-4);
+            db.prepare(`INSERT INTO products
+              (sku,slug,name,category_id,parent_id,short_desc,description,mrp,price,tiers,moq,unit,pack_size,weight_g,stock,images,hsn,gst_rate,is_active,is_featured,is_new,opts,meta_title,meta_desc,rating,review_count)
+              VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+                sku, cSlug, cName, d.category_id, id, d.short_desc, d.description, d.mrp, price, '[]', d.moq, d.unit, d.pack_size, d.weight_g, stock, '[]', d.hsn, d.gst_rate, 1, 0, 0, childOpts, d.meta_title, d.meta_desc, d.rating, d.review_count
+              );
+          }
+        }
+      }
+    }
+
     req.flash('ok', 'Changes saved.');
     res.redirect('/admin/products/' + id);
   });
@@ -249,7 +282,7 @@ module.exports = function (r) {
     let slug = H.slugify(b.slug || b.name);
     if (db.prepare('SELECT id FROM categories WHERE slug=? AND id<>?').get(slug, existing ? existing.id : 0))
       slug += '-' + Date.now().toString(36).slice(-4);
-    const img = saveUpload(req.files.image);
+    const img = req.files && req.files.image ? saveUpload(req.files.image) : null;
     return {
       name: String(b.name || '').trim(), slug,
       parent_id: b.parent_id ? Number(b.parent_id) : null,
@@ -596,10 +629,14 @@ module.exports = function (r) {
     if (gate(req, res)) return;
     const b = req.body;
     const keys = ['site_name', 'tagline', 'announcement', 'phone', 'whatsapp', 'email', 'address', 'hours',
-      'gstin', 'free_shipping_over', 'shipping_flat', 'razorpay_key_id', 'razorpay_key_secret', 'bank_details',
-      'home_hero_title', 'home_hero_sub', 'home_hero_kicker', 'home_stat1_title', 'home_stat1_text', 'home_stat2_title', 'home_stat2_text'];
+      'gstin', 'home_hero_title', 'home_hero_sub', 'home_hero_kicker', 'home_stat1_title', 'home_stat1_text', 'home_stat2_title', 'home_stat2_text',
+      'theme_color_primary', 'theme_color_secondary', 'menu_header', 'menu_footer_company', 'social_instagram', 'social_facebook', 'social_linkedin', 'wholesale_content'];
     keys.forEach(k => { if (b[k] !== undefined) setting.set(k, b[k]); });
-    setting.set('payments_live', b.payments_live ? '1' : '0');
+
+    if (req.files && req.files.site_logo) {
+      const u = saveUpload(req.files.site_logo);
+      if (u) setting.set('site_logo', u);
+    }
     const u = res.locals.user;
     if (b.admin_email && b.admin_email !== u.email) {
       try { db.prepare('UPDATE users SET email=? WHERE id=?').run(String(b.admin_email).trim().toLowerCase(), u.id); }

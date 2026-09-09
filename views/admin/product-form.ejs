@@ -132,6 +132,13 @@
         <label style="font-weight:600;display:block;margin-bottom:6px;font-size:13px">Variant Dimensions</label>
         <input class="input" name="opt_dimensions" placeholder="e.g. Size, Color, Length" value="${currentDimensions.join(', ')}">
         <div class="hint" style="margin-top:4px;font-size:12px;line-height:1.4">If this product has variants, specify the dimensions (comma separated).</div>
+        <% if (p.id) { %>
+          <div style="margin-top:16px; border-top:1px dashed var(--line); padding-top:12px;">
+            <label style="font-weight:600;display:block;margin-bottom:6px;font-size:13px">Quick Generate Children</label>
+            <textarea class="input" name="bulk_variants" rows="4" placeholder="SKU | Size, Color | Price | Stock"></textarea>
+            <div class="hint" style="margin-top:4px;font-size:12px;line-height:1.4">One per line. Format: <b>SKU | Val1, Val2 | Price | Stock</b>. Existing SKUs will be updated.</div>
+          </div>
+        <% } %>
       `;
     } else {
       const parent = parentsData.find(pt => pt.id == parentId);

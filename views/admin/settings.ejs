@@ -1,6 +1,6 @@
 <%- include('admin/partials-top',{title:'Settings',nav:'set'}) %>
 <div class="topbar"><div><h1>Settings</h1><p class="muted" style="margin:0">Store details, shipping rules and payments</p></div></div>
-<form method="post" action="/admin/settings">
+<form method="post" action="/admin/settings" enctype="multipart/form-data">
 <div class="grid g2" style="align-items:start">
   <div>
     <div class="card card-pad">
@@ -22,10 +22,12 @@
       </div>
     </div>
     <div class="card card-pad" style="margin-top:16px">
-      <h2>Shipping</h2>
+      <h2>Store Branding</h2>
+      <div class="field"><label>Site Logo</label><input class="input" type="file" name="site_logo" accept="image/*">
+        <div class="hint">Upload a transparent PNG or SVG logo. Current: <%= S.site_logo || '/static/img/brand/logo.jpg' %></div></div>
       <div class="row">
-        <div class="field"><label>Free shipping over (₹)</label><input class="input" type="number" name="free_shipping_over" value="<%= S.free_shipping_over %>"></div>
-        <div class="field"><label>Flat shipping charge (₹)</label><input class="input" type="number" name="shipping_flat" value="<%= S.shipping_flat %>"></div>
+        <div class="field"><label>Primary Color (Navy)</label><input class="input" type="color" name="theme_color_primary" value="<%= S.theme_color_primary || '#1D3159' %>" style="height:40px;padding:4px"></div>
+        <div class="field"><label>Secondary Color (Gold)</label><input class="input" type="color" name="theme_color_secondary" value="<%= S.theme_color_secondary || '#B27A22' %>" style="height:40px;padding:4px"></div>
       </div>
     </div>
     <div class="card card-pad" style="margin-top:16px">
@@ -45,13 +47,18 @@
   </div>
   <div>
     <div class="card card-pad">
-      <h2>Payments</h2>
-      <div class="notice notice-info"><span>💳</span><div>To take live card and UPI payments, create a Razorpay account, then paste your Key ID and Key Secret here and switch payments to live.</div></div>
-      <div class="field"><label>Razorpay Key ID</label><input class="input" name="razorpay_key_id" value="<%= S.razorpay_key_id %>" placeholder="rzp_live_…"></div>
-      <div class="field"><label>Razorpay Key Secret</label><input class="input" type="password" name="razorpay_key_secret" value="<%= S.razorpay_key_secret %>" placeholder="••••••••"></div>
-      <label style="display:flex;gap:8px;align-items:center;margin-bottom:14px"><input type="checkbox" name="payments_live" value="1" <%= S.payments_live==='1'?'checked':'' %>> Payments are live</label>
-      <div class="field"><label>Bank transfer details</label><textarea class="input" name="bank_details" style="min-height:100px"><%= S.bank_details %></textarea>
-        <div class="hint">Sent to customers who choose NEFT / bank transfer.</div></div>
+      <h2>Menus & Social Links</h2>
+      <div class="field"><label>Header Links (Format: Name | /url-path)</label><textarea class="input" name="menu_header" rows="4" placeholder="About | /pages/about-us"><%= S.menu_header %></textarea></div>
+      <div class="field"><label>Footer Company Links</label><textarea class="input" name="menu_footer_company" rows="4" placeholder="Terms | /pages/terms-conditions"><%= S.menu_footer_company %></textarea></div>
+      <div class="field"><label>Instagram URL</label><input class="input" name="social_instagram" value="<%= S.social_instagram %>"></div>
+      <div class="field"><label>Facebook URL</label><input class="input" name="social_facebook" value="<%= S.social_facebook %>"></div>
+      <div class="field"><label>LinkedIn URL</label><input class="input" name="social_linkedin" value="<%= S.social_linkedin %>"></div>
+    </div>
+    <div class="card card-pad" style="margin-top:16px">
+      <h2>Wholesale Page Content</h2>
+      <div class="field"><label>Wholesale Pitch & FAQs</label>
+        <textarea class="input" name="wholesale_content" rows="12"><%= S.wholesale_content %></textarea>
+        <div class="hint">Use HTML to format the text shown on /wholesale.</div></div>
     </div>
     <div class="card card-pad" style="margin-top:16px">
       <h2>Your admin login</h2>

@@ -2,13 +2,18 @@
   <div class="wrap">
     <div class="grid">
       <div class="footer-brand">
-        <img src="/static/img/brand/logo.jpg" alt="<%= S.site_name %>" style="max-height: 56px; width: auto; object-fit: contain;">
+        <img src="<%= S.site_logo || '/static/img/brand/logo.jpg' %>" alt="<%= S.site_name %>" style="max-height: 56px; width: auto; object-fit: contain;">
         <p style="font-size:14px;max-width:34ch">Wholesale garment accessories from Delhi since 1993. Tagging systems, tags and labels, pins, threading thread and packing consumables.</p>
         <div class="footer-contact">
           <div><b>Call / WhatsApp:</b> <a href="tel:<%= S.phone.replace(/\s/g,'') %>" style="display:inline"><%= S.phone %></a></div>
           <div><b>Email:</b> <a href="mailto:<%= S.email %>" style="display:inline"><%= S.email %></a></div>
           <div><b>Address:</b> <%= S.address %></div>
           <div><b>Hours:</b> <%= S.hours %></div>
+        </div>
+        <div class="footer-social" style="margin-top: 16px; display: flex; gap: 12px; font-weight: 600; font-size: 13px;">
+          <% if(S.social_instagram){ %><a href="<%= S.social_instagram %>" target="_blank" style="text-decoration: underline;">Instagram</a><% } %>
+          <% if(S.social_facebook){ %><a href="<%= S.social_facebook %>" target="_blank" style="text-decoration: underline;">Facebook</a><% } %>
+          <% if(S.social_linkedin){ %><a href="<%= S.social_linkedin %>" target="_blank" style="text-decoration: underline;">LinkedIn</a><% } %>
         </div>
       </div>
       <div>
@@ -18,12 +23,14 @@
       </div>
       <div>
         <h5>Company</h5>
-        <a href="/pages/about-us">About us</a>
-        <a href="/wholesale">Wholesale programme</a>
-        <a href="/contact">Contact us</a>
-
-        <a href="/pages/terms-conditions">Terms &amp; conditions</a>
-        <a href="/pages/privacy-policy">Privacy policy</a>
+        <% 
+          const fLinks = (S.menu_footer_company || 'About us | /pages/about-us\nWholesale programme | /wholesale\nContact us | /contact\nTerms & conditions | /pages/terms-conditions\nPrivacy policy | /pages/privacy-policy').split('\n').filter(l => l.trim()).map(l => {
+            const p = l.split('|'); return { name: p[0].trim(), url: p[1] ? p[1].trim() : '#' };
+          });
+        %>
+        <% for(const l of fLinks){ %>
+          <a href="<%= l.url %>"><%= l.name %></a>
+        <% } %>
       </div>
       <div>
         <h5>Trade updates</h5>

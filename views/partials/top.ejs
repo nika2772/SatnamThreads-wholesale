@@ -16,10 +16,17 @@
   <meta property="og:image" content="<%= SITE_URL %>/static/img/hero.svg">
   <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/css/style.css?v=11">
-  
+  <style>
+    :root {
+      --navy: <%= S.theme_color_primary || '#1D3159' %>;
+      --navy-2: <%= S.theme_color_primary || '#1D3159' %>;
+      --gold: <%= S.theme_color_secondary || '#B27A22' %>;
+      --gold-2: <%= S.theme_color_secondary || '#B27A22' %>;
+    }
+  </style>
   <script type="application/ld+json"><%- JSON.stringify({
   "@context":"https://schema.org","@type":"Organization",
-  name:S.site_name, url:SITE_URL, logo:SITE_URL+"/static/img/brand/logo.jpg",
+  name:S.site_name, url:SITE_URL, logo:SITE_URL + (S.site_logo || "/static/img/brand/logo.jpg"),
   description:"Wholesale supplier of garment accessories, tagging systems and threading thread. Founded 1993.",
   foundingDate:"1993",
   telephone:S.phone, email:S.email,
@@ -61,7 +68,7 @@
         </svg>
       </button>
       <a class="logo" href="/" style="display:flex; align-items:center; gap:16px; text-decoration:none;">
-      <img src="/static/img/brand/logo.jpg" alt="<%= S.site_name %>" style="height: 64px; width: auto; object-fit: contain;">
+      <img src="<%= S.site_logo || '/static/img/brand/logo.jpg' %>" alt="<%= S.site_name %>" style="height: 64px; width: auto; object-fit: contain;">
       <div style="display:flex; flex-direction:column; justify-content:center;">
         <span style="font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1;">Satnam Threads</span>
         <span style="font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Since 1993</span>
@@ -207,9 +214,14 @@
             <% } %>
         </div>
       </div>
-      <a href="/products" class="<%= path==='/products' ? 'active':'' %>">Shop all</a>
-      <a href="/wholesale" class="<%= path==='/wholesale' ? 'active':'' %>">Wholesale</a>
-      <a href="/pages/about-us">About</a>
+      <% 
+        const hLinks = (S.menu_header || 'Shop all | /products\nWholesale | /wholesale\nAbout | /pages/about-us').split('\n').filter(l => l.trim()).map(l => {
+          const p = l.split('|'); return { name: p[0].trim(), url: p[1] ? p[1].trim() : '#' };
+        });
+      %>
+      <% for(const l of hLinks){ %>
+        <a href="<%= l.url %>" class="<%= path===l.url ? 'active':'' %>"><%= l.name %></a>
+      <% } %>
       <a class="spacer"
         href="https://wa.me/<%= S.whatsapp %>?text=Hi%20<%= encodeURIComponent(S.site_name) %>,%20we%20would%20like%20to%20enquire%20about%20the%20products%20that%20you%20deal%20in."
         style="background:#25D366; color:#fff; padding:6px 14px; border-radius:6px; font-weight:600; font-size:13px; align-self:center; border-bottom:none; text-decoration:none;">WhatsApp
