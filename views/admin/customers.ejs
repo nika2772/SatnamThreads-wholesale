@@ -19,10 +19,9 @@
     <td class="num"><%= u.orders %></td>
     <td class="num"><b><%= money(u.spend||0) %></b></td>
     <td><span class="badge <%= u.status==='active'?'badge-ok':(u.status==='pending'?'badge-warn':'badge-bad') %>"><%= u.status %></span></td>
-    <td style="white-space:nowrap">
+    <td style="white-space:nowrap; text-align:right">
       <% if(u.status!=='active'){ %><a class="btn btn-sm" href="/admin/customers/<%= u.id %>/status/active">Approve</a><% } %>
-      <% if(u.status==='active' && u.role!=='admin'){ %><a class="btn btn-sm btn-ghost" href="/admin/customers/<%= u.id %>/status/blocked">Block</a><% } %>
-      <% if(u.account_type!=='wholesale'){ %><a class="btn btn-sm btn-ghost" href="/admin/customers/<%= u.id %>/type/wholesale">→ Wholesale</a><% } %>
+      <a class="btn btn-sm btn-ghost" href="/admin/customers/<%= u.id %>">Edit</a>
     </td></tr><% } %>
   <% if(!users.length){ %><tr><td colspan="8" class="empty">No customers match that filter.</td></tr><% } %>
   </tbody></table></div>

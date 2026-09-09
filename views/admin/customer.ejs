@@ -1,0 +1,73 @@
+<%- include('admin/partials-top',{title:'Edit Customer',nav:'cust'}) %>
+<div class="topbar">
+  <div>
+    <h1>Edit Customer</h1>
+    <p class="muted" style="margin:0"><%= c.name %> (<%= c.email %>) · Joined <%= fmtDate(c.created_at) %></p>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-ghost" href="/admin/customers">← Back</a>
+  </div>
+</div>
+
+<form method="post" action="/admin/customers/<%= c.id %>">
+  <div class="grid g2" style="align-items:start">
+    <div>
+      <div class="card card-pad">
+        <h2>Personal Details</h2>
+        <div class="field"><label>Full Name *</label><input class="input" name="name" required value="<%= c.name || '' %>"></div>
+        <div class="field"><label>Email Address *</label><input class="input" type="email" name="email" required value="<%= c.email || '' %>"></div>
+        <div class="field"><label>Phone Number</label><input class="input" name="phone" value="<%= c.phone || '' %>"></div>
+        <div class="field"><label>City</label><input class="input" name="city" value="<%= c.city || '' %>"></div>
+      </div>
+      
+      <div class="card card-pad" style="margin-top:16px">
+        <h2>Business Details</h2>
+        <div class="field"><label>Company Name</label><input class="input" name="company" value="<%= c.company || '' %>"></div>
+        <div class="field"><label>GSTIN</label><input class="input" name="gstin" value="<%= c.gstin || '' %>"></div>
+        <div class="row">
+          <div class="field">
+            <label>Account Type</label>
+            <select class="input" name="account_type">
+              <option value="retail" <%= c.account_type === 'retail' ? 'selected' : '' %>>Retail</option>
+              <option value="wholesale" <%= c.account_type === 'wholesale' ? 'selected' : '' %>>Wholesale</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select class="input" name="status">
+              <option value="active" <%= c.status === 'active' ? 'selected' : '' %>>Active</option>
+              <option value="pending" <%= c.status === 'pending' ? 'selected' : '' %>>Pending Approval</option>
+              <option value="blocked" <%= c.status === 'blocked' ? 'selected' : '' %>>Blocked</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div>
+      <div class="card card-pad">
+        <h2>Security</h2>
+        <div class="field">
+          <label>Reset Password</label>
+          <input class="input" type="password" name="new_password" minlength="8" placeholder="Leave blank to keep current">
+          <div class="hint">Type a new password here to forcefully reset this user's password. Must be at least 8 characters.</div>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--line-2);margin:16px 0">
+        <button class="btn btn-block" type="submit">Save Customer Details</button>
+      </div>
+      
+      <% if (c.role !== 'admin') { %>
+      <div class="card card-pad" style="margin-top:16px; border-color: #fca5a5; background: #fef2f2">
+        <h2 style="color: #b91c1c">Danger Zone</h2>
+        <p style="font-size: 14px; margin-bottom: 12px; color: #991b1b">
+          Permanently delete this customer account. This will also remove their wishlist and cart items.
+        </p>
+        <a class="btn btn-block btn-danger" href="/admin/customers/<%= c.id %>/delete"
+           onclick="confirmDel(event,'Permanently delete <%= String(c.name).replace(/'/g,"") %>? This cannot be undone.')">Delete Customer</a>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</form>
+
+<%- include('admin/partials-bottom') %>

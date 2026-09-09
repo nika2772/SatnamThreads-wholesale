@@ -135,7 +135,7 @@ module.exports = function (r) {
       });
     }
     res.render('shop/product', {
-      title: p.name, metaDesc: p.short_desc, p, cat, variants,
+      title: p.meta_title || p.name, metaDesc: p.meta_desc || p.short_desc, p, cat, variants,
       images: images.length ? images : ['/static/img/placeholder.svg'],
       tiers: ST.tiersOf(p), unitPrice: H.priceFor(p, p.moq || 1, res.locals.user),
       related: related.concat(extra.filter(e => !related.find(r2 => r2.id === e.id))).slice(0, 4),

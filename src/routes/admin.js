@@ -183,7 +183,9 @@ module.exports = function (r) {
       weight_g: Number(b.weight_g) || 0, stock: Number(b.stock) || 0,
       images: JSON.stringify(images), hsn: b.hsn || '', gst_rate: Number(b.gst_rate) || 0,
       is_active: b.is_active ? 1 : 0, is_featured: b.is_featured ? 1 : 0, is_new: b.is_new ? 1 : 0,
-      opts: JSON.stringify(opts)
+      opts: JSON.stringify(opts),
+      meta_title: b.meta_title || '', meta_desc: b.meta_desc || '',
+      rating: Number(b.rating) || 0, review_count: Number(b.review_count) || 0
     };
   }
 
@@ -192,8 +194,8 @@ module.exports = function (r) {
     const d = productPayload(req, null);
     if (!d.name) { req.flash('error', 'Product name is required.'); return res.redirect('/admin/products/new'); }
     const info = db.prepare(`INSERT INTO products
-      (sku,slug,name,category_id,parent_id,short_desc,description,mrp,price,tiers,moq,unit,pack_size,weight_g,stock,images,hsn,gst_rate,is_active,is_featured,is_new,opts)
-      VALUES(@sku,@slug,@name,@category_id,@parent_id,@short_desc,@description,@mrp,@price,@tiers,@moq,@unit,@pack_size,@weight_g,@stock,@images,@hsn,@gst_rate,@is_active,@is_featured,@is_new,@opts)`).run(d);
+      (sku,slug,name,category_id,parent_id,short_desc,description,mrp,price,tiers,moq,unit,pack_size,weight_g,stock,images,hsn,gst_rate,is_active,is_featured,is_new,opts,meta_title,meta_desc,rating,review_count)
+      VALUES(@sku,@slug,@name,@category_id,@parent_id,@short_desc,@description,@mrp,@price,@tiers,@moq,@unit,@pack_size,@weight_g,@stock,@images,@hsn,@gst_rate,@is_active,@is_featured,@is_new,@opts,@meta_title,@meta_desc,@rating,@review_count)`).run(d);
     req.flash('ok', 'Product created.');
     res.redirect('/admin/products/' + Number(info.lastInsertRowid));
   });
@@ -207,7 +209,7 @@ module.exports = function (r) {
     db.prepare(`UPDATE products SET sku=@sku,slug=@slug,name=@name,category_id=@category_id,parent_id=@parent_id,short_desc=@short_desc,
       description=@description,mrp=@mrp,price=@price,tiers=@tiers,moq=@moq,unit=@unit,pack_size=@pack_size,
       weight_g=@weight_g,stock=@stock,images=@images,hsn=@hsn,gst_rate=@gst_rate,is_active=@is_active,
-      is_featured=@is_featured,is_new=@is_new,opts=@opts WHERE id=@id`).run(d);
+      is_featured=@is_featured,is_new=@is_new,opts=@opts,meta_title=@meta_title,meta_desc=@meta_desc,rating=@rating,review_count=@review_count WHERE id=@id`).run(d);
     req.flash('ok', 'Changes saved.');
     res.redirect('/admin/products/' + id);
   });
@@ -361,6 +363,49 @@ module.exports = function (r) {
       users: db.prepare(`SELECT u.* FROM users u ${w} ORDER BY u.id DESC LIMIT ? OFFSET ?`).all(...args, pg.per, pg.offset),
       pageUrl: n => '/admin/customers?' + new URLSearchParams(Object.assign({}, q, { page: n })).toString()
     });
+  });
+
+  r.get('/admin/customers/:id', (req, res) => {
+    if (gate(req, res)) return;
+    const c = db.prepare('SELECT * FROM users WHERE id=?').get(Number(req.params.id));
+    if (!c) return res.redirect('/admin/customers');
+    view(res, 'admin/customer', { title: c.name, nav: 'cust', c });
+  });
+
+  r.post('/admin/customers/:id', (req, res) => {
+    if (gate(req, res)) return;
+    const b = req.body;
+    const id = Number(req.params.id);
+    const email = String(b.email || '').trim().toLowerCase();
+    
+    const clash = db.prepare('SELECT id FROM users WHERE email=? AND id<>?').get(email, id);
+    if (clash) {
+      req.flash('error', 'That email is already in use by another account.');
+      return res.redirect('/admin/customers/' + id);
+    }
+    
+    db.prepare(`UPDATE users SET name=?, email=?, phone=?, company=?, gstin=?, city=?, account_type=?, status=? WHERE id=?`)
+      .run(b.name, email, b.phone || '', b.company || '', b.gstin || '', b.city || '', b.account_type || 'retail', b.status || 'active', id);
+      
+    if (b.new_password && String(b.new_password).length >= 8) {
+      db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(H.hashPassword(b.new_password), id);
+    }
+    
+    req.flash('ok', 'Customer details saved.');
+    res.redirect('/admin/customers/' + id);
+  });
+
+  r.get('/admin/customers/:id/delete', (req, res) => {
+    if (gate(req, res)) return;
+    const id = Number(req.params.id);
+    const c = db.prepare('SELECT role FROM users WHERE id=?').get(id);
+    if (c && c.role !== 'admin') {
+      db.prepare('DELETE FROM users WHERE id=?').run(id);
+      req.flash('ok', 'Customer deleted.');
+    } else if (c) {
+      req.flash('error', 'Cannot delete an admin account from here.');
+    }
+    res.redirect('/admin/customers');
   });
 
   r.get('/admin/customers/:id/status/:status', (req, res) => {
@@ -551,7 +596,8 @@ module.exports = function (r) {
     if (gate(req, res)) return;
     const b = req.body;
     const keys = ['site_name', 'tagline', 'announcement', 'phone', 'whatsapp', 'email', 'address', 'hours',
-      'gstin', 'free_shipping_over', 'shipping_flat', 'razorpay_key_id', 'razorpay_key_secret', 'bank_details'];
+      'gstin', 'free_shipping_over', 'shipping_flat', 'razorpay_key_id', 'razorpay_key_secret', 'bank_details',
+      'home_hero_title', 'home_hero_sub', 'home_hero_kicker', 'home_stat1_title', 'home_stat1_text', 'home_stat2_title', 'home_stat2_text'];
     keys.forEach(k => { if (b[k] !== undefined) setting.set(k, b[k]); });
     setting.set('payments_live', b.payments_live ? '1' : '0');
     const u = res.locals.user;

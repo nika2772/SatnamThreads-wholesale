@@ -180,6 +180,8 @@ try { db.exec('ALTER TABLE users ADD COLUMN reset_token TEXT;'); } catch {}
 try { db.exec('ALTER TABLE users ADD COLUMN reset_expires INTEGER;'); } catch {}
 try { db.exec('ALTER TABLE products ADD COLUMN parent_id INTEGER REFERENCES products(id) ON DELETE SET NULL;'); } catch {}
 try { db.exec('ALTER TABLE products ADD COLUMN opts TEXT DEFAULT "{}";'); } catch {}
+try { db.exec('ALTER TABLE products ADD COLUMN meta_title TEXT DEFAULT "";'); } catch {}
+try { db.exec('ALTER TABLE products ADD COLUMN meta_desc TEXT DEFAULT "";'); } catch {}
 
 const setting = {
   get(key, fallback = '') {
